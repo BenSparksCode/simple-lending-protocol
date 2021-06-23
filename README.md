@@ -14,3 +14,8 @@
 - Collateral will be xSUSHI, yvETH to start
 - Stablecoin (dollar-pegged) is called USDZ
 - On liquidiation: 1% goes to liquidator, 9% to protocol treasury
+
+## Resources
+
+- Abracadabra -> [Docs](https://wizard69.gitbook.io/abracadabra-money/) | [GitHub](https://github.com/Abracadabra-money/magic-internet-money/blob/main/contracts/helpers/YearnLiquidityMigrationHelper.sol)
+- Aave &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> [Docs](https://docs.aave.com/developers/) | [GitHub](https://github.com/aave/protocol-v2)
