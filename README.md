@@ -11,7 +11,7 @@
 ## Parameters
 
 - 1% annual interest on all borrowings
-- Collateral will be xSUSHI, yvETH to start
+- Collateral will be xSUSHI to start
 - Stablecoin (dollar-pegged) is called USDZ
 - On liquidiation: 1% goes to liquidator, 9% to protocol treasury
 
