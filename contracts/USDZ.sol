@@ -1,8 +1,11 @@
-pragma solidity ^0.8.4;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./IUSDZ.sol";
 
-contract USDZ is ERC20 {
+contract USDZ is ERC20, IUSDZ {
     // contract with permission to mint/burn tokens
     address public controller;
 
@@ -14,12 +17,24 @@ contract USDZ is ERC20 {
         controller = _controller;
     }
 
-    function mint(address _account, uint256 _amount) external onlyController() {
+    function mint(address _account, uint256 _amount)
+        external
+        override
+        onlyController()
+    {
         _mint(_account, _amount);
+
+        emit Mint(_account, _amount);
     }
 
-    function burn(address _account, uint256 _amount) external onlyController() {
+    function burn(address _account, uint256 _amount)
+        external
+        override
+        onlyController()
+    {
         _burn(_account, _amount);
+
+        emit Burn(_account, _amount);
     }
 
     modifier onlyController() {
