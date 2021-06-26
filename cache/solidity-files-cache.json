@@ -181,8 +181,8 @@
       ]
     },
     "C:\\Users\\Ben\\Projects\\simple-lending-protocol\\contracts\\Controller.sol": {
-      "lastModificationDate": 1624713932952,
-      "contentHash": "7b78fdef105b4effb303a21befc84187",
+      "lastModificationDate": 1624717490236,
+      "contentHash": "149ede334d451a9ed9d5d583b9bf0fa3",
       "sourceName": "contracts/Controller.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -207,7 +207,9 @@
         }
       },
       "imports": [
-        "@openzeppelin/contracts/token/ERC20/IERC20.sol"
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "./IUSDZ.sol"
       ],
       "versionPragmas": [
         "^0.8.0"
@@ -250,6 +252,42 @@
       ],
       "artifacts": [
         "IUSDZ"
+      ]
+    },
+    "C:\\Users\\Ben\\Projects\\simple-lending-protocol\\node_modules\\@openzeppelin\\contracts\\access\\Ownable.sol": {
+      "lastModificationDate": 1620919536725,
+      "contentHash": "17d9f40220b0ab370db2c77e7c92c4ef",
+      "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Ownable"
       ]
     }
   }
