@@ -17,6 +17,10 @@ contract Controller is Ownable {
     address public usdzAddress;
     address public xSushiAddress;
 
+    // ---------------------------------------------------------------------
+    // EVENTS
+    // ---------------------------------------------------------------------
+
     event Deposit(
         address indexed sender,
         address indexed token,
@@ -28,10 +32,32 @@ contract Controller is Ownable {
         uint256 amount
     );
 
+    // ---------------------------------------------------------------------
+    // CONSTRUCTOR
+    // ---------------------------------------------------------------------
+
     constructor(address _usdzAddress, address _xSushiAddress) {
         usdzAddress = _usdzAddress;
         xSushiAddress = _xSushiAddress;
     }
+
+    // ---------------------------------------------------------------------
+    // EXTERNAL STATE-MODIFYING FUNCTIONS
+    // ---------------------------------------------------------------------
+
+    function setUSDZAddress(address _newAddress) external onlyOwner() {
+        require(_newAddress != address(0), "usdz contract not zero address");
+        usdzAddress = _newAddress;
+    }
+
+    function setXSUSHIAddress(address _newAddress) external onlyOwner() {
+        require(_newAddress != address(0), "xSUSHI contract not zero address");
+        xSushiAddress = _newAddress;
+    }
+
+    // ---------------------------------------------------------------------
+    // PUBLIC STATE-MODIFYING FUNCTIONS
+    // ---------------------------------------------------------------------
 
     // User deposits xSUSHI as collateral
     function deposit(uint256 _amount) public {
@@ -53,15 +79,5 @@ contract Controller is Ownable {
         // TODO check sender has high enough balance
 
         emit Withdraw(msg.sender, xSushiAddress, _amount);
-    }
-
-    function setUSDZAddress(address _newAddress) external onlyOwner(){
-        require(_newAddress != address(0), 'usdz contract not zero address');
-        usdzAddress = _newAddress;
-    }
-
-    function setXSUSHIAddress(address _newAddress) external onlyOwner(){
-        require(_newAddress != address(0), 'xSUSHI contract not zero address');
-        xSushiAddress = _newAddress;
     }
 }
