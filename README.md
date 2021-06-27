@@ -26,6 +26,11 @@
   - 1 veGOV = 1 vote in governance issues.
   - Protocol earnings are directed to 2 different accounts: 70% operating funds, and 30% staking rewards. veGOV tokens represent a share of the staking rewards pool.
   - veCRV holders also vote on how the operating funds are used.
+- GOV Token Distribution:
+  - 10% founding team allocation, vested for 2 years
+  - 25% of supply airdropped to DeFi users
+  - 30% operating fund, linear unlocks for 2 years
+  - 35% liquidity mining rewards for 2 years
 - Protocol Launch Caps:
   - To prevent whales using large positions to break the USDZ-dollar peg (a potential attack vector), some caps will be in place at launch, and may be changed by protocol governance later.
   - Protocol collateral cap: $10 million in xSUSHI.
