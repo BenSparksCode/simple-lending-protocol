@@ -22,6 +22,14 @@ module.exports = {
   },
   gasReporter:{
     endabled: true
+  },
+  networks: {
+    hardhat: {
+      forking: {
+        url: "https://eth-mainnet.alchemyapi.io/v2/"+process.env.ALCHEMY_API,
+        blockNumber: 12690500
+      }
+    }
   }
 };
 
