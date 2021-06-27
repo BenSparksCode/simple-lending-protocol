@@ -19,12 +19,17 @@
   - Of the 10% liquidation fee, 1% goes to liquidator, 9% to protocol treasury.
 - Borrowing:
   - Delay of 10 blocks between depositing collateral and borrowing (to prevent Flash Loan attacks, as USDZ will likely be very illiquid at the start). This give arbitrageurs and liquidators time to stablize USDZ at $1, or liquidate reckless reckless positions that put the solvency of the protocol at risk.
+- Governance:
+  - There will be a completely valueless governance token for the protocol. Ticker to be decided. GOV used as a placeholder. 
+  - GOV can be locked for different periods, in exchange for veGOV (shout out to [Curve](https://curve.readthedocs.io/dao-vecrv.html)).
+  - GOV lockers get more veGOV, the longer they lock up the GOV for.
+  - 1 veGOV = 1 vote in governance issues.
+  - Protocol earnings are directed to 2 different accounts: 70% operating funds, and 30% staking rewards. veGOV tokens represent a share of the staking rewards pool.
+  - veCRV holders also vote on how the operating funds are used.
 - Protocol Launch Caps:
   - To prevent whales using large positions to break the USDZ-dollar peg (a potential attack vector), some caps will be in place at launch, and may be changed by protocol governance later.
-  - Collateral cap per address: $500 000 in xSUSHI.
-  - Borrow cap per address: $100 000 in USDZ
   - Protocol collateral cap: $10 million in xSUSHI.
-  - Protocol borrow cap: $1 million in USDZ
+  - Protocol borrow cap: $2 million in USDZ.
 
 ## Resources
 
