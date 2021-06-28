@@ -2,11 +2,16 @@
 
 ## Contract System
 
-- USDZ -> Dollar-stable token, minted against collateral. Must have mint/burn managed by system contract. 
-- Controller -> Central system manager. Keeps records of users' collateralized positions, ratios, etc. Coordinator should also have a price oracle for USDZ, as its price could force liquidation earlir or later
-- AuctionHouse
-  - liquidated xSUSHI sent here to be Dutch auctioned
-  - lots  [] xSUSHI
+- ```USDZ```
+  - Dollar-stable token, minted against collateral.
+  - Mint/burn managed by Controller.
+- ```Controller```
+  - Central system manager.
+  - Keeps records of users' collateralized positions, ratios, etc.
+  - Keeps track of USDZ and xSUSHI prices using SushiSwap TWAP
+  - Has ability to liquidate undercollateralized positions
+- ```AuctionHouse```
+  - liquidated xSUSHI sent here to be Dutch auctioned, will probably follow a Maker Liquidation 2.0 model
  
 ## Protocol Plans
 - Protocol Parameters:
