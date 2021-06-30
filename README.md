@@ -23,6 +23,7 @@
   - At 150% col. ratio or lower, positions can be liquidated for the amount that would bring it back to 150% col. ratio.
   - Can only withdraw collateral if col. ratio over 200%. Can't withdraw collateral that would make col. ratio < 200%
 - Liquidation:
+  - TODO: explore different liquidation techniques.
   - liquidator executes ```liquidate``` or ```batchLiquidate``` on address(es) with debt position(s)
   - protocol then auctions the address's xSUSHI collateral via dutch auction for USDZ, and burns it to keep the circulating USDZ backed by adaquate xSUSHI collateral.
   - when liquidating a position, 15% of the xSUSHI is diverted as a liquidation fee, and the remaining 85% is auctioned for USDZ.
