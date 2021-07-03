@@ -1,5 +1,18 @@
 
 export const CONSTANTS = {
+    PROTOCOL_PARAMS: {
+        CONTROLLER: {  
+            // fees and rates / 10 000
+            liqTotalFee:1000,
+            liqFeeShare:200,
+            totalIRate:500,
+            iRateShare:300,
+        },
+        USDZ: {
+            name: "USDZ",
+            symbol: "USDZ",
+        }
+    },
     CONTRACTS: {
         SUSHI: {
             // https://etherscan.io/address/0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F#code
