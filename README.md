@@ -12,10 +12,11 @@
   - Has ability to liquidate undercollateralized positions
  
 ## Protocol Plan V1
+
+MVP version, for educational purposes. Not intended for real financial use. 
+
 - Protocol Parameters:
-  - TODO: research dynamic interest rates
-  - 5% annual interest on all borrowings
-  - 3% to lenders, 2% to protocol
+  - 3% annual interest on all borrowings
   - Collateral will be xSUSHI to start
   - Stablecoin (dollar-pegged) is called USDZ
   - Can borrow USDZ against collateral up to 150% collateralization ratio
@@ -28,6 +29,28 @@
   - Of the 10% liquidation fee: 2% goes to liquidator, 8% to protocol treasury.
 - Borrowing:
   - Delay of 10 blocks between depositing collateral and borrowing (to prevent Flash Loan attacks, as USDZ will likely be very illiquid at the start).
+
+### The Lend-Borrow Accounting Process
+
+- User deposits xSUSHI by approving, then calling `deposit()`
+  - stores amount of xSUSHI deposited, as `collateral`
+  - emits Deposit event
+- User can then call `borrow()`, passing `amount` to borrow
+  - calculates USDC value of user's xSUSHI collateral (`xSushiPrice`) via SushiSwap
+  - calculates collateral ratio (`colRatio`) of user, given current `debt`
+  - if `colRatio` <= 200%, reverts with `"not enough collateral"`
+  - if `colRatio` > 200%, user can borrow up to a 200% `colRatio`
+  - calculates `borrowable` as 
+  ```
+  xSushiPrice * ( colRatio - 200% )
+  ```
+  - if `amount` > `borrowable`, reverts with `"amount too high"`
+  - TODO complete
+  - sets user `debt` to the amount of USDZ borrowed
+  - emits `Borrow` event
+- Anyone can call `liquidate()`, passing an address that has a position
+  - checks if address has a position, if not reverts with `"address has no position"`
+  - TODO complete
 
 ## Protocol Plan V2
 
