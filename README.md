@@ -37,7 +37,8 @@ MVP version, for educational purposes. Not intended for real financial use.
   - emits Deposit event
 - User can then call `borrow()`, passing `amount` to borrow
   - calculates USDC value of user's xSUSHI collateral (`xSushiPrice`) via SushiSwap
-  - calculates collateral ratio (`colRatio`) of user, given current `debt`
+  - calculates compound `interest` user owes on any outstanding debt from `lastBorrowed` to now (using time, not blocks)
+  - calculates collateral ratio (`colRatio`) of user, given current `debt` + `interest`
   - if `colRatio` <= 200%, reverts with `"not enough collateral"`
   - if `colRatio` > 200%, user can borrow up to a 200% `colRatio`
   - calculates `borrowable` as 
@@ -45,12 +46,24 @@ MVP version, for educational purposes. Not intended for real financial use.
   xSushiPrice * ( colRatio - 200% )
   ```
   - if `amount` > `borrowable`, reverts with `"amount too high"`
-  - TODO complete
-  - sets user `debt` to the amount of USDZ borrowed
+  - sets user `debt` to prev `debt` + `interest` + `amount` borrowed
+  - sets user's `lastBorrowed` to now (to restart interest compounding from the new total debt figure)
   - emits `Borrow` event
 - Anyone can call `liquidate()`, passing an address that has a position
   - checks if address has a position, if not reverts with `"address has no position"`
-  - TODO complete
+  - calculates `totalDebt` amount for address as `debt` + `interest` on the debt since `lastBorrowed`. This is a USDZ figure.
+  - calculates USDC value of user's xSUSHI collateral (`xSushiPrice`) via SushiSwap.
+  - calculates the `colRatio` of the address as
+  ```
+  ( xSushiPrice * collateral ) / totalDebt
+  ```
+  - if `colRatio` > 150%, reverts with `"collateral ratio still safe"`
+  - if `colRatio` <= 150%, liquidation process starts
+  - 90% of xSUSHI is swapped for USDC on SushiSwap
+  - 8% of xSUSHI is transferred internally to protocol
+  - 2% of xSUSHI is transferred internally to liquidater
+  - sets user `debt` and `collateral` to `0` 
+  - emits a Liquidation event
 
 ## Protocol Plan V2
 
