@@ -7,12 +7,13 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./IUSDZ.sol";
 
 contract Controller is Ownable {
-    struct UserPosition {
-        uint256 collateralBalance;
-        uint256 mintedUSDZ;
+    struct Position {
+        uint256 collateral;
+        uint256 debt;
+        uint256 lastBorrowed;
     }
 
-    mapping(address => uint256) xSushiBalances;
+    mapping(address => Position) private positions;
 
     address public usdzAddress;
     address public xSushiAddress;
@@ -31,15 +32,26 @@ contract Controller is Ownable {
     // EVENTS
     // ---------------------------------------------------------------------
 
-    event Deposit(
-        address indexed sender,
-        address indexed token,
-        uint256 amount
+    event Deposit(address indexed account, uint256 amount);
+    event Withdraw(address indexed account, uint256 amount);
+    event Borrow(
+        address indexed account,
+        uint256 amountBorrowed,
+        uint256 collateral,
+        uint256 totalDebt
     );
-    event Withdraw(
-        address indexed sender,
-        address indexed token,
-        uint256 amount
+    event Repay(
+        address indexed account,
+        uint256 debtRepaid,
+        uint256 debtRemaining,
+        uint256 collateral
+    );
+    event Liquidation(
+        address indexed account,
+        address indexed liquidator,
+        uint256 collateralLiquidated,
+        uint256 lastCollateralRatio,
+        uint256 lastDebtOutstanding
     );
 
     // ---------------------------------------------------------------------
@@ -67,35 +79,20 @@ contract Controller is Ownable {
     }
 
     // ---------------------------------------------------------------------
-    // EXTERNAL STATE-MODIFYING FUNCTIONS
-    // ---------------------------------------------------------------------
-
-    function setUSDZAddress(address _newAddress) external onlyOwner() {
-        require(_newAddress != address(0), "usdz contract not zero address");
-        usdzAddress = _newAddress;
-    }
-
-    function setXSUSHIAddress(address _newAddress) external onlyOwner() {
-        require(_newAddress != address(0), "xSUSHI contract not zero address");
-        xSushiAddress = _newAddress;
-    }
-
-    // ---------------------------------------------------------------------
     // PUBLIC STATE-MODIFYING FUNCTIONS
     // ---------------------------------------------------------------------
 
     // User deposits xSUSHI as collateral
     function deposit(uint256 _amount) public {
-        IUSDZ usdzInstance = IUSDZ(usdzAddress);
+        IERC20 xSUSHI = IERC20(xSushiAddress);
         require(
-            usdzInstance.transferFrom(msg.sender, address(this), _amount),
-            "deposit transfer failed"
+            xSUSHI.transferFrom(msg.sender, address(this), _amount),
+            "deposit failed"
         );
 
-        // TODO make interest pool share token
-        // TODO mint iPool to user
+        // TODO update senders position collateral
 
-        emit Deposit(msg.sender, xSushiAddress, _amount);
+        emit Deposit(msg.sender, _amount);
     }
 
     // User withdraws xSUSHI collateral if safety ratio stays > 200%
@@ -103,14 +100,29 @@ contract Controller is Ownable {
         // TODO check sender's safety ratio > 200%
         // TODO check sender has high enough balance
 
-        emit Withdraw(msg.sender, xSushiAddress, _amount);
+        emit Withdraw(msg.sender, _amount);
     }
 
     // User borrows USDZ against collateral
-    function borrow(uint256 _amount) public {}
+    function borrow(uint256 _amount) public {
+        // TODO
+
+        emit Borrow(msg.sender, _amount, 0, 0);
+    }
+
+    // User repays any debt in USDZ
+    function repay(uint256 _amount) public {
+        // TODO
+
+        emit Repay(msg.sender, _amount, 0, 0);
+    }
 
     // Liquidates account if collateral ratio below safety threshold
-    function liquidate(address _account) public {}
+    function liquidate(address _account) public {
+        // TODO
+
+        emit Liquidation(_account, msg.sender, 0, 0, 0);
+    }
 
     // ---------------------------------------------------------------------
     // ONLY OWNER FUNCTIONS
@@ -159,5 +171,15 @@ contract Controller is Ownable {
         );
         borrowThreshold = _borrowThreshold;
         liquidationThreshold = _liqThreshold;
+    }
+
+    function setUSDZAddress(address _newAddress) external onlyOwner() {
+        require(_newAddress != address(0), "usdz contract not zero address");
+        usdzAddress = _newAddress;
+    }
+
+    function setXSUSHIAddress(address _newAddress) external onlyOwner() {
+        require(_newAddress != address(0), "xSUSHI contract not zero address");
+        xSushiAddress = _newAddress;
     }
 }
