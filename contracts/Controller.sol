@@ -17,6 +17,14 @@ contract Controller is Ownable {
     address public usdzAddress;
     address public xSushiAddress;
 
+    uint256 public liquidationFee;
+    uint256 public liquidatorFeeShare;
+
+    uint256 public interestRate;
+    uint256 public lenderIRateShare;
+
+    uint256 public FEE_RATE_SCALING_FACTOR = 10000;
+
     // ---------------------------------------------------------------------
     // EVENTS
     // ---------------------------------------------------------------------
@@ -36,9 +44,22 @@ contract Controller is Ownable {
     // CONSTRUCTOR
     // ---------------------------------------------------------------------
 
-    constructor(address _usdzAddress, address _xSushiAddress) {
+    constructor(
+        address _usdzAddress,
+        address _xSushiAddress,
+        uint256 _liqTotalFee,
+        uint256 _liqFeeShare,
+        uint256 _totalIRate,
+        uint256 _iRateShare
+    ) {
         usdzAddress = _usdzAddress;
         xSushiAddress = _xSushiAddress;
+
+        // fees and rates use SCALE_FACTOR (default 10 000)
+        liquidationFee = _liqTotalFee;
+        liquidatorFeeShare = _liqFeeShare;
+        interestRate = _totalIRate;
+        lenderIRateShare = _iRateShare;
     }
 
     // ---------------------------------------------------------------------
@@ -80,4 +101,11 @@ contract Controller is Ownable {
 
         emit Withdraw(msg.sender, xSushiAddress, _amount);
     }
+
+    // ---------------------------------------------------------------------
+    // ONLY OWNER FUNCTIONS
+    // ---------------------------------------------------------------------
+
+    
+
 }
