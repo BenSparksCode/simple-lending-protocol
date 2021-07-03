@@ -142,4 +142,22 @@ contract Controller is Ownable {
         );
         interestRate = _interestRate;
     }
+
+    function setThresholds(uint256 _borrowThreshold, uint256 _liqThreshold)
+        public
+        onlyOwner
+    {
+        // both thresholds should be > scaling factor
+        // e.g. 20 000 / 10 000 = 200%
+        require(
+            _borrowThreshold >= SCALING_FACTOR,
+            "borrow threshold must be > scaling factor"
+        );
+        require(
+            _liqThreshold >= SCALING_FACTOR,
+            "liq threshold must be > scaling factor"
+        );
+        borrowThreshold = _borrowThreshold;
+        liquidationThreshold = _liqThreshold;
+    }
 }
