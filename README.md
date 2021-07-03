@@ -10,8 +10,6 @@
   - Keeps records of users' collateralized positions, ratios, etc.
   - Keeps track of USDZ and xSUSHI prices using SushiSwap TWAP
   - Has ability to liquidate undercollateralized positions
-- ```AuctionHouse```
-  - liquidated xSUSHI sent here to be Dutch auctioned, will probably follow a Maker Liquidation 2.0 model
  
 ## Protocol Plan V1
 - Protocol Parameters:
