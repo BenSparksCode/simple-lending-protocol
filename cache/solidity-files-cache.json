@@ -181,8 +181,8 @@
       ]
     },
     "C:\\Users\\Ben\\Projects\\simple-lending-protocol\\contracts\\Controller.sol": {
-      "lastModificationDate": 1625308934820,
-      "contentHash": "66b5f29b57c440cfb062da70f374f5f2",
+      "lastModificationDate": 1625329933175,
+      "contentHash": "35f07c1ade138baa2857732e8236da20",
       "sourceName": "contracts/Controller.sol",
       "solcConfig": {
         "version": "0.8.4",

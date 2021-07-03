@@ -22,7 +22,10 @@ contract Controller is Ownable {
 
     uint256 public interestRate;
 
-    uint256 public FEE_RATE_SCALING_FACTOR = 10000;
+    uint256 public borrowThreshold;
+    uint256 public liquidationThreshold;
+
+    uint256 public SCALING_FACTOR = 10000;
 
     // ---------------------------------------------------------------------
     // EVENTS
@@ -48,7 +51,9 @@ contract Controller is Ownable {
         address _xSushiAddress,
         uint256 _liqTotalFee,
         uint256 _liqFeeShare,
-        uint256 _interestRate
+        uint256 _interestRate,
+        uint256 _borrowThreshold,
+        uint256 _liqThreshold
     ) {
         usdzAddress = _usdzAddress;
         xSushiAddress = _xSushiAddress;
@@ -57,6 +62,8 @@ contract Controller is Ownable {
         liquidationFee = _liqTotalFee;
         liquidatorFeeShare = _liqFeeShare;
         interestRate = _interestRate;
+        borrowThreshold = _borrowThreshold;
+        liquidationThreshold = _liqThreshold;
     }
 
     // ---------------------------------------------------------------------
@@ -100,9 +107,10 @@ contract Controller is Ownable {
     }
 
     // User borrows USDZ against collateral
-    function borrow(uint256 _amount) public {
+    function borrow(uint256 _amount) public {}
 
-    }
+    // Liquidates account if collateral ratio below safety threshold
+    function liquidate(address _account) public {}
 
     // ---------------------------------------------------------------------
     // ONLY OWNER FUNCTIONS
@@ -115,11 +123,11 @@ contract Controller is Ownable {
     ) public onlyOwner {
         // Liquidation fees
         require(
-            _liqTotalFee <= FEE_RATE_SCALING_FACTOR && _liqTotalFee >= 0,
+            _liqTotalFee <= SCALING_FACTOR && _liqTotalFee >= 0,
             "liqTotalFee out of range"
         );
         require(
-            _liqFeeShare <= FEE_RATE_SCALING_FACTOR &&
+            _liqFeeShare <= SCALING_FACTOR &&
                 _liqFeeShare >= 0 &&
                 _liqFeeShare <= _liqTotalFee,
             "liqFeeShare out of range"
@@ -129,7 +137,7 @@ contract Controller is Ownable {
 
         // Interest rates
         require(
-            _interestRate <= FEE_RATE_SCALING_FACTOR && _interestRate >= 0,
+            _interestRate <= SCALING_FACTOR && _interestRate >= 0,
             "interestRate out of range"
         );
         interestRate = _interestRate;
