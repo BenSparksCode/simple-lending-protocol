@@ -181,8 +181,8 @@
       ]
     },
     "C:\\Users\\Ben\\Projects\\simple-lending-protocol\\contracts\\Controller.sol": {
-      "lastModificationDate": 1625349265365,
-      "contentHash": "489145381fd3218ac1f7497acd140069",
+      "lastModificationDate": 1625350136628,
+      "contentHash": "b5ebd2cc71c4329311e0241c319ea13b",
       "sourceName": "contracts/Controller.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -209,6 +209,7 @@
       "imports": [
         "@openzeppelin/contracts/access/Ownable.sol",
         "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "./interfaces/IUniswapV2Router02.sol",
         "./IUSDZ.sol"
       ],
       "versionPragmas": [

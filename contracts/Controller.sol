@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./interfaces/IUniswapV2Router02.sol";
 import "./IUSDZ.sol";
 
 contract Controller is Ownable {
@@ -19,6 +20,7 @@ contract Controller is Ownable {
 
     address public usdzAddress;
     address public xSushiAddress;
+    address public SushiRouterAddress;
 
     uint256 public liquidationFee;
     uint256 public liquidatorFeeShare;
@@ -63,6 +65,7 @@ contract Controller is Ownable {
     constructor(
         address _usdzAddress,
         address _xSushiAddress,
+        address _routerAddress,
         uint256 _liqTotalFee,
         uint256 _liqFeeShare,
         uint256 _interestRate,
@@ -71,6 +74,7 @@ contract Controller is Ownable {
     ) {
         usdzAddress = _usdzAddress;
         xSushiAddress = _xSushiAddress;
+        SushiRouterAddress = _routerAddress;
 
         // fees and rates use SCALE_FACTOR (default 10 000)
         liquidationFee = _liqTotalFee;
@@ -101,8 +105,12 @@ contract Controller is Ownable {
 
     // User withdraws xSUSHI collateral if safety ratio stays > 200%
     function withdraw(uint256 _amount) public {
+        require(positions[msg.sender].collateral >= _amount, "not enough collateral in account");
+        // Calculating collateral ratio
+        IUniswapV2Router02 router = IUniswapV2Router02(SushiRouterAddress);
+        // TODO uint256 xSushiPrice = router.swapExactTokensForTokens();
+
         // TODO check sender's safety ratio > 200%
-        // TODO check sender has high enough balance
 
         emit Withdraw(msg.sender, _amount);
     }
