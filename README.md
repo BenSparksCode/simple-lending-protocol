@@ -13,8 +13,9 @@
 - ```AuctionHouse```
   - liquidated xSUSHI sent here to be Dutch auctioned, will probably follow a Maker Liquidation 2.0 model
  
-## Protocol Plans
+## Protocol Plan V1
 - Protocol Parameters:
+  - TODO: research dynamic interest rates
   - 5% annual interest on all borrowings
   - 3% to lenders, 2% to protocol
   - Collateral will be xSUSHI to start
@@ -23,13 +24,17 @@
   - At 150% col. ratio or lower, positions can be liquidated for the amount that would bring it back to 150% col. ratio.
   - Can only withdraw collateral if col. ratio over 200%. Can't withdraw collateral that would make col. ratio < 200%
 - Liquidation:
-  - TODO: explore different liquidation techniques.
+  - To keep things simple, liquidation will market sell the entire xSUSHI collateral via SushiSwap for USDC. USDC will then be redeemable 1:1 with USDZ. This should keep USDZ approx dollar-pegged even if it has very little trade volume.
   - liquidator executes ```liquidate``` or ```batchLiquidate``` on address(es) with debt position(s)
-  - protocol then auctions the address's xSUSHI collateral via dutch auction for USDZ, and burns it to keep the circulating USDZ backed by adaquate xSUSHI collateral.
-  - when liquidating a position, 15% of the xSUSHI is diverted as a liquidation fee, and the remaining 85% is auctioned for USDZ.
-  - Of the 15% liquidation fee, 5% goes to liquidator, 10% to protocol treasury.
+  - when liquidating a position, 10% of the xSUSHI is diverted as a liquidation fee, and the remaining 90% is swapped for USDC.
+  - Of the 10% liquidation fee: 2% goes to liquidator, 8% to protocol treasury.
 - Borrowing:
   - Delay of 10 blocks between depositing collateral and borrowing (to prevent Flash Loan attacks, as USDZ will likely be very illiquid at the start).
+
+## Protocol Plan V2
+
+Some form of governance token and DAO will be established to develop the protocol after a public version is ready and deployed.
+
 - Governance:
   - There will be a completely valueless governance token for the protocol. Ticker to be decided. GOV used as a placeholder. 
   - GOV can be locked for different periods, in exchange for veGOV (shout out to [Curve](https://curve.readthedocs.io/dao-vecrv.html)).
