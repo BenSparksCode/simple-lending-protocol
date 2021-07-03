@@ -15,6 +15,8 @@ contract Controller is Ownable {
 
     mapping(address => Position) private positions;
 
+    uint256 public protocolShortfall;
+
     address public usdzAddress;
     address public xSushiAddress;
 
@@ -90,8 +92,10 @@ contract Controller is Ownable {
             "deposit failed"
         );
 
-        // TODO update senders position collateral
-
+        // Adding deposited collateral to position
+        uint256 prevCollateral_ = positions[msg.sender].collateral;
+        positions[msg.sender].collateral = prevCollateral_ + _amount;
+        
         emit Deposit(msg.sender, _amount);
     }
 
@@ -120,6 +124,9 @@ contract Controller is Ownable {
     // Liquidates account if collateral ratio below safety threshold
     function liquidate(address _account) public {
         // TODO
+
+
+        // TODO if USDC from liquidation < account's debt - add different to protocol shortfall
 
         emit Liquidation(_account, msg.sender, 0, 0, 0);
     }
