@@ -106,6 +106,38 @@ contract Controller is Ownable {
     // ONLY OWNER FUNCTIONS
     // ---------------------------------------------------------------------
 
-    
+    function setFeesAndRates(
+        uint256 _liqTotalFee,
+        uint256 _liqFeeShare,
+        uint256 _totalIRate,
+        uint256 _iRateShare
+    ) public onlyOwner {
+        // Liquidation fees
+        require(
+            _liqTotalFee <= FEE_RATE_SCALING_FACTOR && _liqTotalFee >= 0,
+            "liqTotalFee out of range"
+        );
+        require(
+            _liqFeeShare <= FEE_RATE_SCALING_FACTOR &&
+                _liqFeeShare >= 0 &&
+                _liqFeeShare <= _liqTotalFee,
+            "liqFeeShare out of range"
+        );
+        liquidationFee = _liqTotalFee;
+        liquidatorFeeShare = _liqFeeShare;
 
+        // Interest rates
+        require(
+            _totalIRate <= FEE_RATE_SCALING_FACTOR && _totalIRate >= 0,
+            "totalIRate out of range"
+        );
+        require(
+            _iRateShare <= FEE_RATE_SCALING_FACTOR &&
+                _iRateShare >= 0 &&
+                _iRateShare <= _totalIRate,
+            "iRateShare out of range"
+        );
+        interestRate = _totalIRate;
+        lenderIRateShare = _iRateShare;
+    }
 }
