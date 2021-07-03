@@ -21,7 +21,6 @@ contract Controller is Ownable {
     uint256 public liquidatorFeeShare;
 
     uint256 public interestRate;
-    uint256 public lenderIRateShare;
 
     uint256 public FEE_RATE_SCALING_FACTOR = 10000;
 
@@ -49,8 +48,7 @@ contract Controller is Ownable {
         address _xSushiAddress,
         uint256 _liqTotalFee,
         uint256 _liqFeeShare,
-        uint256 _totalIRate,
-        uint256 _iRateShare
+        uint256 _interestRate
     ) {
         usdzAddress = _usdzAddress;
         xSushiAddress = _xSushiAddress;
@@ -58,8 +56,7 @@ contract Controller is Ownable {
         // fees and rates use SCALE_FACTOR (default 10 000)
         liquidationFee = _liqTotalFee;
         liquidatorFeeShare = _liqFeeShare;
-        interestRate = _totalIRate;
-        lenderIRateShare = _iRateShare;
+        interestRate = _interestRate;
     }
 
     // ---------------------------------------------------------------------
@@ -102,6 +99,11 @@ contract Controller is Ownable {
         emit Withdraw(msg.sender, xSushiAddress, _amount);
     }
 
+    // User borrows USDZ against collateral
+    function borrow(uint256 _amount) public {
+
+    }
+
     // ---------------------------------------------------------------------
     // ONLY OWNER FUNCTIONS
     // ---------------------------------------------------------------------
@@ -109,8 +111,7 @@ contract Controller is Ownable {
     function setFeesAndRates(
         uint256 _liqTotalFee,
         uint256 _liqFeeShare,
-        uint256 _totalIRate,
-        uint256 _iRateShare
+        uint256 _interestRate
     ) public onlyOwner {
         // Liquidation fees
         require(
@@ -128,16 +129,9 @@ contract Controller is Ownable {
 
         // Interest rates
         require(
-            _totalIRate <= FEE_RATE_SCALING_FACTOR && _totalIRate >= 0,
-            "totalIRate out of range"
+            _interestRate <= FEE_RATE_SCALING_FACTOR && _interestRate >= 0,
+            "interestRate out of range"
         );
-        require(
-            _iRateShare <= FEE_RATE_SCALING_FACTOR &&
-                _iRateShare >= 0 &&
-                _iRateShare <= _totalIRate,
-            "iRateShare out of range"
-        );
-        interestRate = _totalIRate;
-        lenderIRateShare = _iRateShare;
+        interestRate = _interestRate;
     }
 }
