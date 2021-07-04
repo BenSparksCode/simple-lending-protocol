@@ -4,10 +4,14 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+import "./utils/ABDKMath64x64.sol";
 import "./interfaces/IUniswapV2Router02.sol";
 import "./IUSDZ.sol";
 
 contract Controller is Ownable {
+    using ABDKMath64x64 for uint128;
+
     struct Position {
         uint256 collateral;
         uint256 debt;

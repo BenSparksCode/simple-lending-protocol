@@ -428,6 +428,40 @@
       "artifacts": [
         "IUniswapV2Pair"
       ]
+    },
+    "C:\\Users\\Ben\\Projects\\simple-lending-protocol\\contracts\\utils\\ABDKMath64x64.sol": {
+      "lastModificationDate": 1625433489400,
+      "contentHash": "659a88a270311729f1bd5d1f96f33a36",
+      "sourceName": "contracts/utils/ABDKMath64x64.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ABDKMath64x64"
+      ]
     }
   }
 }
