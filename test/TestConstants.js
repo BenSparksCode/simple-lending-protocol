@@ -1,5 +1,5 @@
 
-export const CONSTANTS = {
+const CONSTANTS = {
     PROTOCOL_PARAMS: {
         CONTROLLER: {  
             // fees and rates / 10 000
@@ -32,4 +32,9 @@ export const CONSTANTS = {
         // Binance 8 Wallet
         XSUSHI_WHALE: "0xf977814e90da44bfa03b6295a0616a897441acec",
     }
+}
+
+
+module.exports = {
+ constants: CONSTANTS
 }
