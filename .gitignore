@@ -76,3 +76,6 @@ typings/
 .fusebox/
 
 yarn.lock
+
+# Hardhat cache
+cache/
