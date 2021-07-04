@@ -20,7 +20,11 @@ export const CONSTANTS = {
             // https://etherscan.io/address/0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac#code
             FACTORY: "0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac",
             // https://etherscan.io/address/0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272#code
-            XSUSHI: "0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272"
+            XSUSHI: "0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272",
+            // https://etherscan.io/address/0x397FF1542f962076d0BFE58eA045FfA2d347ACa0
+            USDC_WETH_POOL: "0x397FF1542f962076d0BFE58eA045FfA2d347ACa0",
+            // https://etherscan.io/address/0x36e2FCCCc59e5747Ff63a03ea2e5C0c2C14911e7
+            XSUSHI_WETH_POOL: "0x36e2FCCCc59e5747Ff63a03ea2e5C0c2C14911e7"
         },
     },
     WALLETS: {
