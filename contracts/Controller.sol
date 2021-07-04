@@ -205,6 +205,19 @@ contract Controller is Ownable {
         return (collateralValue_ * SCALING_FACTOR) / debt_;
     }
 
+    function calcInterest(address _account) public view returns (uint256 interest) {
+        uint256 debt_ = positions[_account].debt;
+        uint256 lastBorrowed_ = positions[_account].lastBorrowed;
+        if(debt_ == 0 || lastBorrowed_ == 0){
+            return 0;
+        }
+
+        // TODO add some fancy floating point math
+        // continous compound interest = P*e^(i*t)
+        uint256 interest_;
+
+    }
+
     // ---------------------------------------------------------------------
     // ONLY OWNER FUNCTIONS
     // ---------------------------------------------------------------------
