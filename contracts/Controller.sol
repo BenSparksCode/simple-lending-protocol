@@ -115,12 +115,37 @@ contract Controller is Ownable {
 
     // User withdraws xSUSHI collateral if safety ratio stays > 200%
     function withdraw(uint256 _amount) public {
+        uint256 startingCollateral_ = positions[msg.sender].collateral;
+
         require(
-            positions[msg.sender].collateral >= _amount,
+            startingCollateral_ >= _amount,
             "not enough collateral in account"
         );
 
-        // TODO check sender's safety ratio > 200%
+        // TODO add interest to debt first in helper fn
+
+        uint256 colRatio = getCollateralRatio(msg.sender);
+
+        require(
+            colRatio > borrowThreshold,
+            "collateral ratio is <= borrow threshold"
+        );
+
+        uint256 withdrawable_ = ((colRatio -
+            (borrowThreshold / SCALING_FACTOR)) / type(uint256).max) *
+            startingCollateral_;
+
+        require(
+            withdrawable_ >= _amount,
+            "withdraw less of collateral ratio becomes unsafe"
+        );
+
+        positions[msg.sender].collateral = startingCollateral_ - _amount;
+
+        require(
+            IERC20(xSushiAddress).transfer(msg.sender, _amount),
+            "withdraw transfer failed"
+        );
 
         emit Withdraw(msg.sender, _amount);
     }
@@ -177,7 +202,7 @@ contract Controller is Ownable {
         )[1];
         // col. ratio = collateral USDC value / debt USDC value
         // E.g. 2:1 will return 200
-        return (collateralValue_ * 100) / debt_;
+        return (collateralValue_ * SCALING_FACTOR) / debt_;
     }
 
     // ---------------------------------------------------------------------

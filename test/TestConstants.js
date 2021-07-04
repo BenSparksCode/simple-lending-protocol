@@ -2,11 +2,13 @@
 const CONSTANTS = {
     PROTOCOL_PARAMS: {
         CONTROLLER: {  
-            // fees and rates / 10 000
+            SCALING_FACTOR: 10000,          // fees and rates / 10 000
             liqTotalFee:1000,
             liqFeeShare:200,
             totalIRate:500,
             iRateShare:300,
+            borrowThreshold: 20000,         // 200%
+            liquidationThreshold: 15000,    // 150%
         },
         USDZ: {
             name: "USDZ",
