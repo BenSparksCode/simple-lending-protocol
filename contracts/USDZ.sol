@@ -37,6 +37,11 @@ contract USDZ is ERC20, IUSDZ {
         emit Burn(_account, _amount);
     }
 
+    // Matching USDC's 6 decimals as USDZ will be pegged to USDC
+    function decimals() public view virtual override returns (uint8) {
+        return 6;
+    }
+
     modifier onlyController() {
         require(msg.sender == controller, "only controller has permission");
         _;
