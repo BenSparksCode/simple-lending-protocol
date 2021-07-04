@@ -154,13 +154,13 @@ contract Controller is Ownable {
 
     // Calculates collateral ratio of an account.
     // Assumes debt is in USDZ, and 1 USDZ = 1 USDC, and collateral is in xSUSHI
-    function calcCollateralRatio(address account_)
+    function getCollateralRatio(address _account)
         public
         view
         returns (uint256)
     {
-        uint256 collateral_ = positions[account_].collateral;
-        uint256 debt_ = positions[account_].debt;
+        uint256 collateral_ = positions[_account].collateral;
+        uint256 debt_ = positions[_account].debt;
 
         if (collateral_ == 0) {
             // if collateral is 0, col ratio is 0 and no borrowing possible
