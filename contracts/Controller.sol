@@ -19,8 +19,11 @@ contract Controller is Ownable {
     uint256 public protocolShortfall;
 
     address public usdzAddress;
+    address public usdcAddress;
     address public xSushiAddress;
-    address public SushiRouterAddress;
+    address public sushiRouterAddress;
+
+    address[] public xSushiToUsdcPath;
 
     uint256 public liquidationFee;
     uint256 public liquidatorFeeShare;
@@ -30,7 +33,7 @@ contract Controller is Ownable {
     uint256 public borrowThreshold;
     uint256 public liquidationThreshold;
 
-    uint256 public SCALING_FACTOR = 10000;
+    uint256 public immutable SCALING_FACTOR = 10000;
 
     // ---------------------------------------------------------------------
     // EVENTS
@@ -64,6 +67,7 @@ contract Controller is Ownable {
 
     constructor(
         address _usdzAddress,
+        address _usdcAddress,
         address _xSushiAddress,
         address _routerAddress,
         uint256 _liqTotalFee,
@@ -73,8 +77,9 @@ contract Controller is Ownable {
         uint256 _liqThreshold
     ) {
         usdzAddress = _usdzAddress;
+        usdcAddress = _usdcAddress;
         xSushiAddress = _xSushiAddress;
-        SushiRouterAddress = _routerAddress;
+        sushiRouterAddress = _routerAddress;
 
         // fees and rates use SCALE_FACTOR (default 10 000)
         liquidationFee = _liqTotalFee;
@@ -82,6 +87,11 @@ contract Controller is Ownable {
         interestRate = _interestRate;
         borrowThreshold = _borrowThreshold;
         liquidationThreshold = _liqThreshold;
+
+        // building xSUSHI-USDC SushiSwap pricing path
+        xSushiToUsdcPath = new address[](2);
+        xSushiToUsdcPath[0] = _xSushiAddress;
+        xSushiToUsdcPath[1] = _usdcAddress;
     }
 
     // ---------------------------------------------------------------------
@@ -99,16 +109,16 @@ contract Controller is Ownable {
         // Adding deposited collateral to position
         uint256 prevCollateral_ = positions[msg.sender].collateral;
         positions[msg.sender].collateral = prevCollateral_ + _amount;
-        
+
         emit Deposit(msg.sender, _amount);
     }
 
     // User withdraws xSUSHI collateral if safety ratio stays > 200%
     function withdraw(uint256 _amount) public {
-        require(positions[msg.sender].collateral >= _amount, "not enough collateral in account");
-        // Calculating collateral ratio
-        IUniswapV2Router02 router = IUniswapV2Router02(SushiRouterAddress);
-        // TODO uint256 xSushiPrice = router.swapExactTokensForTokens();
+        require(
+            positions[msg.sender].collateral >= _amount,
+            "not enough collateral in account"
+        );
 
         // TODO check sender's safety ratio > 200%
 
@@ -133,10 +143,41 @@ contract Controller is Ownable {
     function liquidate(address _account) public {
         // TODO
 
-
         // TODO if USDC from liquidation < account's debt - add different to protocol shortfall
 
         emit Liquidation(_account, msg.sender, 0, 0, 0);
+    }
+
+    // ---------------------------------------------------------------------
+    // HELPER FUNCTIONS
+    // ---------------------------------------------------------------------
+
+    // Calculates collateral ratio of an account.
+    // Assumes debt is in USDZ, and 1 USDZ = 1 USDC, and collateral is in xSUSHI
+    function calcCollateralRatio(address account_)
+        public
+        view
+        returns (uint256)
+    {
+        uint256 collateral_ = positions[account_].collateral;
+        uint256 debt_ = positions[account_].debt;
+
+        if (collateral_ == 0) {
+            // if collateral is 0, col ratio is 0 and no borrowing possible
+            return 0;
+        } else if (debt_ == 0) {
+            // if debt is 0, col ratio is infinite
+            return type(uint256).max;
+        }
+        require(collateral_ > 0, "");
+        IUniswapV2Router02 router = IUniswapV2Router02(sushiRouterAddress);
+        uint256 collateralValue_ = router.getAmountsOut(
+            collateral_,
+            xSushiToUsdcPath
+        )[1];
+        // col. ratio = collateral USDC value / debt USDC value
+        // E.g. 2:1 will return 200
+        return (collateralValue_ * 100) / debt_;
     }
 
     // ---------------------------------------------------------------------

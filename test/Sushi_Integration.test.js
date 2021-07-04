@@ -2,7 +2,7 @@ const { BigNumber } = require("@ethersproject/bignumber");
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-import {CONSTANTS} from "./TestConstants"
+const { constants } = require("./TestConstants")
 
 let wallet1, wallet2, wallet3, wallet4, wallet5, wallet6
 let whale
@@ -14,35 +14,31 @@ describe("SushiSwap Integration Tests", function () {
 
         await hre.network.provider.request({
             method: "hardhat_impersonateAccount",
-            params: [CONSTANTS.WALLETS.XSUSHI_WHALE]
+            params: [constants.WALLETS.XSUSHI_WHALE]
         })
 
-        whale = await ethers.provider.getSigner(CONSTANTS.WALLETS.XSUSHI_WHALE)
-    
+        whale = await ethers.provider.getSigner(constants.WALLETS.XSUSHI_WHALE)
+
+        let bal = await whale.getBalance()
+        console.log("Balance: ", bal.toString());
+
     })
     it("Testing some function in the contract", async () => {
-        
+
     });
 
-    
-    // const signer = await ethers.provider.getSigner("0xab5801a7d398351b8be11c439e05c5b3259aec9b")
+    // it("SushiSwap price quote", async () => {
+    //     let TestContract = await ethers.getContractFactory("Test");
+    //     let TestInstance = await TestContract.deploy(
+    //         constants.CONTRACTS.SUSHI.ROUTER,
+    //         constants.CONTRACTS.SUSHI.FACTORY,
+    //         constants.CONTRACTS.TOKENS.USDC,
+    //         constants.CONTRACTS.TOKENS.WETH,
+    //         constants.CONTRACTS.TOKENS.XSUSHI,
+    //     )
 
-    // let bal = await signer.getBalance()
-    // let block = await ethers.provider.getBlock()
-
-    // console.log("Vitalik's balance at block ", block.number)
-    // console.log(ethers.utils.formatUnits(bal, "ether"), "ETH")
-    // console.log("\n\nINITIATE RUG\n\n")
-
-    // const tx = await signer.sendTransaction({
-    //     to: ethers.constants.AddressZero,
-    //     value: ethers.constants.WeiPerEther,
+    //     res = await TestInstance.getAmountsOut(ethers.constants.WeiPerEther)
+    //     console.log(res[1].div(BigNumber.from(1000000)).toString());
     // })
 
-    // bal = await signer.getBalance()
-    // block = await ethers.provider.getBlock()
-
-    // console.log("Vitalik's balance at block ", block.number)
-    // console.log(ethers.utils.formatUnits(bal, "ether"), "ETH")
-    
 });

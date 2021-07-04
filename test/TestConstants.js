@@ -26,6 +26,12 @@ const CONSTANTS = {
             // https://etherscan.io/address/0x36e2FCCCc59e5747Ff63a03ea2e5C0c2C14911e7
             XSUSHI_WETH_POOL: "0x36e2FCCCc59e5747Ff63a03ea2e5C0c2C14911e7"
         },
+        TOKENS: {
+            USDC: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            SUSHI: "0x6b3595068778dd592e39a122f4f5a5cf09c90fe2",
+            XSUSHI: "0x8798249c2e607446efb7ad49ec89dd1865ff4272",
+            WETH: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+        }
     },
     WALLETS: {
         // https://etherscan.io/address/0xf977814e90da44bfa03b6295a0616a897441acec

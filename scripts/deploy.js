@@ -1,5 +1,7 @@
 const hre = require("hardhat");
 
+const { constants } = require("../test/TestConstants")
+
 async function main() {
 
   // When deploying:
@@ -7,6 +9,8 @@ async function main() {
   // 2. Deploy USDZ - pass Controller as authority address
   // 3. Set USDZ address in Controller
   // 4. Deployer swaps 100 000 USDC for 100 000 USDZ in Swapper to seed pool
+
+  console.log("DONE");
 
 }
 
