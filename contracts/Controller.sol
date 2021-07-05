@@ -135,7 +135,7 @@ contract Controller is Ownable {
         positions[msg.sender].debt += interest_;
         positions[msg.sender].lastInterest = block.timestamp;
 
-        uint256 colRatio = getCollateralRatio(msg.sender);
+        uint256 colRatio = getCurrentCollateralRatio(msg.sender);
 
         require(
             colRatio > borrowThreshold,
@@ -161,10 +161,12 @@ contract Controller is Ownable {
         emit Withdraw(msg.sender, _amount);
     }
 
-    // User borrows USDZ against collateral
+    // User mints and borrows USDZ against collateral
     function borrow(uint256 _amount) public {
         // TODO
         // TODO set lastBorrowed to block.timestamp
+
+        // TODO calc forward Col Ratio
 
         emit Borrow(msg.sender, _amount, 0, 0);
     }
@@ -189,20 +191,37 @@ contract Controller is Ownable {
     // HELPER FUNCTIONS
     // ---------------------------------------------------------------------
 
-    // Calculates collateral ratio of an account.
-    // Assumes debt is in USDZ, and 1 USDZ = 1 USDC, and collateral is in xSUSHI
-    function getCollateralRatio(address _account)
+    // Calculates forward collateral ratio of an account, using custom debt amount
+    function getForwardCollateralRatio(address _account, uint256 _totalDebt)
         public
         view
         returns (uint256)
     {
+        return _getCollateralRatio(_account, _totalDebt);
+    }
+
+    // Calculates current collateral ratio of an account.
+    function getCurrentCollateralRatio(address _account)
+        public
+        view
+        returns (uint256)
+    {
+        return _getCollateralRatio(_account, positions[_account].debt);
+    }
+
+    // Internal getColRatio logic
+    // Assumes totalDebt is in USDZ, and 1 USDZ = 1 USDC, and collateral is in xSUSHI
+    function _getCollateralRatio(address _account, uint256 _totalDebt)
+        internal
+        view
+        returns (uint256)
+    {
         uint256 collateral_ = positions[_account].collateral;
-        uint256 debt_ = positions[_account].debt;
 
         if (collateral_ == 0) {
             // if collateral is 0, col ratio is 0 and no borrowing possible
             return 0;
-        } else if (debt_ == 0) {
+        } else if (_totalDebt == 0) {
             // if debt is 0, col ratio is infinite
             return type(uint256).max;
         }
@@ -214,7 +233,7 @@ contract Controller is Ownable {
         )[1];
         // col. ratio = collateral USDC value / debt USDC value
         // E.g. 2:1 will return 200
-        return (collateralValue_ * SCALING_FACTOR) / debt_;
+        return (collateralValue_ * SCALING_FACTOR) / _totalDebt;
     }
 
     // Calculates interest on position of given address
