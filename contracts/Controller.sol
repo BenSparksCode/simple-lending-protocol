@@ -15,7 +15,7 @@ contract Controller is Ownable {
     struct Position {
         uint256 collateral;
         uint256 debt;
-        uint256 lastBorrowed;
+        uint256 lastInterest;
     }
 
     mapping(address => Position) private positions;
@@ -130,8 +130,10 @@ contract Controller is Ownable {
             "not enough collateral in account"
         );
 
-        // TODO add interest to debt first in helper fn
-        // TODO ^ call calcInterest here
+        uint256 interest_ = calcInterest(msg.sender);
+
+        positions[msg.sender].debt += interest_;
+        positions[msg.sender].lastInterest = block.timestamp;
 
         uint256 colRatio = getCollateralRatio(msg.sender);
 
@@ -224,19 +226,17 @@ contract Controller is Ownable {
     {
         if (
             positions[_account].debt == 0 ||
-            positions[_account].lastBorrowed == 0 ||
-            interestRate == 0
+            positions[_account].lastInterest == 0 ||
+            interestRate == 0 ||
+            block.timestamp == positions[_account].lastInterest
         ) {
             return 0;
         }
 
-        // TODO check block.timestamp can't be same as
-        // lastBorrowed, otherwise dividing by 0
-
-        uint256 secondsSinceBorrowed_ = block.timestamp -
-            positions[_account].lastBorrowed;
+        uint256 secondsSinceLastInterest_ = block.timestamp -
+            positions[_account].lastInterest;
         int128 yearsBorrowed_ = ABDKMath64x64.div(
-            ABDKMath64x64.fromUInt(secondsSinceBorrowed_),
+            ABDKMath64x64.fromUInt(secondsSinceLastInterest_),
             SECONDS_IN_YEAR
         );
         int128 interestRate_ = ABDKMath64x64.div(
