@@ -10,7 +10,7 @@ import "./interfaces/IUniswapV2Router02.sol";
 import "./IUSDZ.sol";
 
 contract Controller is Ownable {
-    using ABDKMath64x64 for uint128;
+    // using ABDKMath64x64 for int128;
 
     struct Position {
         uint256 collateral;
@@ -37,7 +37,8 @@ contract Controller is Ownable {
     uint256 public borrowThreshold;
     uint256 public liquidationThreshold;
 
-    uint256 public immutable SCALING_FACTOR = 10000;
+    uint256 public constant SCALING_FACTOR = 10000;
+    int128 public SECONDS_IN_YEAR; // int128 for compound interest math
 
     // ---------------------------------------------------------------------
     // EVENTS
@@ -85,7 +86,7 @@ contract Controller is Ownable {
         xSushiAddress = _xSushiAddress;
         sushiRouterAddress = _routerAddress;
 
-        // fees and rates use SCALE_FACTOR (default 10 000)
+        // fees and rates use SCALING_FACTOR (default 10 000)
         liquidationFee = _liqTotalFee;
         liquidatorFeeShare = _liqFeeShare;
         interestRate = _interestRate;
@@ -96,6 +97,9 @@ contract Controller is Ownable {
         xSushiToUsdcPath = new address[](2);
         xSushiToUsdcPath[0] = _xSushiAddress;
         xSushiToUsdcPath[1] = _usdcAddress;
+
+        // set SECONDS_IN_YEAR for interest calculations
+        SECONDS_IN_YEAR = ABDKMath64x64.fromUInt(31556952);
     }
 
     // ---------------------------------------------------------------------
@@ -127,6 +131,7 @@ contract Controller is Ownable {
         );
 
         // TODO add interest to debt first in helper fn
+        // TODO ^ call calcInterest here
 
         uint256 colRatio = getCollateralRatio(msg.sender);
 
@@ -157,6 +162,7 @@ contract Controller is Ownable {
     // User borrows USDZ against collateral
     function borrow(uint256 _amount) public {
         // TODO
+        // TODO set lastBorrowed to block.timestamp
 
         emit Borrow(msg.sender, _amount, 0, 0);
     }
@@ -209,17 +215,49 @@ contract Controller is Ownable {
         return (collateralValue_ * SCALING_FACTOR) / debt_;
     }
 
-    function calcInterest(address _account) public view returns (uint256 interest) {
-        uint256 debt_ = positions[_account].debt;
-        uint256 lastBorrowed_ = positions[_account].lastBorrowed;
-        if(debt_ == 0 || lastBorrowed_ == 0){
+    // Calculates interest on position of given address
+    // WARNING: contains fancy math
+    function calcInterest(address _account)
+        public
+        view
+        returns (uint256 interest)
+    {
+        if (
+            positions[_account].debt == 0 ||
+            positions[_account].lastBorrowed == 0 ||
+            interestRate == 0
+        ) {
             return 0;
         }
 
-        // TODO add some fancy floating point math
-        // continous compound interest = P*e^(i*t)
-        uint256 interest_;
+        // TODO check block.timestamp can't be same as
+        // lastBorrowed, otherwise dividing by 0
 
+        uint256 secondsSinceBorrowed_ = block.timestamp -
+            positions[_account].lastBorrowed;
+        int128 yearsBorrowed_ = ABDKMath64x64.div(
+            ABDKMath64x64.fromUInt(secondsSinceBorrowed_),
+            SECONDS_IN_YEAR
+        );
+        int128 interestRate_ = ABDKMath64x64.div(
+            ABDKMath64x64.fromUInt(interestRate),
+            ABDKMath64x64.fromUInt(SCALING_FACTOR)
+        );
+        int128 debt_ = ABDKMath64x64.fromUInt(positions[_account].debt);
+
+        // continous compound interest = P*e^(i*t)
+        // this figure includes principal + interest
+        uint64 interest_ = ABDKMath64x64.toUInt(
+            ABDKMath64x64.mul(
+                debt_,
+                ABDKMath64x64.exp(
+                    ABDKMath64x64.mul(interestRate_, yearsBorrowed_)
+                )
+            )
+        );
+
+        // returns only the interest, not the principal
+        return uint256(interest_) - positions[_account].debt;
     }
 
     // ---------------------------------------------------------------------
