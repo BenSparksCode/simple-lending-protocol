@@ -56,7 +56,7 @@ contract Controller is Ownable {
         address indexed account,
         uint256 debtRepaid,
         uint256 debtRemaining,
-        uint256 collateral
+        uint256 collateralAmount
     );
     event Liquidation(
         address indexed account,
@@ -192,9 +192,25 @@ contract Controller is Ownable {
 
     // User repays any debt in USDZ
     function repay(uint256 _amount) public {
-        // TODO
+        // TODO complete
+        require(_amount > 0, "can't repay 0");
 
-        emit Repay(msg.sender, _amount, 0, 0);
+        Position storage pos = positions[msg.sender];
+        pos.debt += calcInterest(msg.sender);
+        pos.lastInterest = block.timestamp;
+
+        // TODO
+        if (pos.debt > _amount) {
+            // deduct full amount
+            // require transferFrom
+            pos.debt -= _amount;
+        } else {
+            // only repay full debt
+            // require transferFrom
+            pos.debt = 0;
+        }
+
+        emit Repay(msg.sender, _amount, pos.debt, pos.collateral);
     }
 
     // Liquidates account if collateral ratio below safety threshold
