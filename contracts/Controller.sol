@@ -192,21 +192,24 @@ contract Controller is Ownable {
 
     // User repays any debt in USDZ
     function repay(uint256 _amount) public {
-        // TODO complete
         require(_amount > 0, "can't repay 0");
 
         Position storage pos = positions[msg.sender];
         pos.debt += calcInterest(msg.sender);
         pos.lastInterest = block.timestamp;
 
-        // TODO
         if (pos.debt > _amount) {
-            // deduct full amount
-            // require transferFrom
+            require(
+                IUSDZ(usdzAddress).transferFrom(msg.sender, address(this), _amount),
+                "repay transfer failed"
+            );
             pos.debt -= _amount;
         } else {
-            // only repay full debt
-            // require transferFrom
+            // repay all debt, as _amount >= debt
+            require(
+                IUSDZ(usdzAddress).transferFrom(msg.sender, address(this), pos.debt),
+                "repay transfer failed"
+            );
             pos.debt = 0;
         }
 
