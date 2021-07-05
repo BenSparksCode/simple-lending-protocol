@@ -49,8 +49,8 @@ contract Controller is Ownable {
     event Borrow(
         address indexed account,
         uint256 amountBorrowed,
-        uint256 collateral,
-        uint256 totalDebt
+        uint256 totalDebt,
+        uint256 collateralAmount
     );
     event Repay(
         address indexed account,
@@ -163,12 +163,31 @@ contract Controller is Ownable {
 
     // User mints and borrows USDZ against collateral
     function borrow(uint256 _amount) public {
-        // TODO
-        // TODO set lastBorrowed to block.timestamp
+        require(_amount > 0, "can't borrow 0");
 
-        // TODO calc forward Col Ratio
+        uint256 interest_ = calcInterest(msg.sender);
 
-        emit Borrow(msg.sender, _amount, 0, 0);
+        // Check forward col. ratio >= safe col. ratio limit
+        require(
+            getForwardCollateralRatio(
+                msg.sender,
+                positions[msg.sender].debt + interest_ + _amount
+            ) >= borrowThreshold,
+            "not enough collateral to borrow that much"
+        );
+
+        // add interest and new debt to position
+        positions[msg.sender].debt += (_amount + interest_);
+        positions[msg.sender].lastInterest = block.timestamp;
+
+        // TODO mint USDZ to sender
+
+        emit Borrow(
+            msg.sender,
+            _amount,
+            positions[msg.sender].debt,
+            positions[msg.sender].collateral
+        );
     }
 
     // User repays any debt in USDZ
@@ -232,7 +251,7 @@ contract Controller is Ownable {
             xSushiToUsdcPath
         )[1];
         // col. ratio = collateral USDC value / debt USDC value
-        // E.g. 2:1 will return 200
+        // E.g. 2:1 will return 20 000 (uses scaling factor)
         return (collateralValue_ * SCALING_FACTOR) / _totalDebt;
     }
 
