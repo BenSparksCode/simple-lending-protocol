@@ -6,11 +6,18 @@ const { constants } = require("./TestConstants")
 
 let wallet1, wallet2, wallet3, wallet4, wallet5, wallet6
 let whale
+let owner
+
+
+let USDZContract
+let USDZInstance
+let ControllerContract
+let ControllerInstance
 
 
 describe("SushiSwap Integration Tests", function () {
     beforeEach(async () => {
-        [wallet1, wallet2, wallet3, wallet4, wallet5, wallet6] = await ethers.getSigners();
+        [owner, wallet2, wallet3, wallet4, wallet5, wallet6] = await ethers.getSigners();
 
         await hre.network.provider.request({
             method: "hardhat_impersonateAccount",
@@ -22,8 +29,34 @@ describe("SushiSwap Integration Tests", function () {
         let bal = await whale.getBalance()
         console.log("Balance: ", bal.toString());
 
+        ControllerContract = await ethers.getContractFactory("Controller")
+        ControllerInstance = await ControllerContract.connect(owner).deploy(
+            ethers.constants.AddressZero, // update to address after deploy
+            constants.CONTRACTS.TOKENS.USDC,
+            constants.CONTRACTS.TOKENS.XSUSHI,
+            constants.CONTRACTS.SUSHI.ROUTER,
+            constants.PROTOCOL_PARAMS.CONTROLLER.liqTotalFee,
+            constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeShare,
+            constants.PROTOCOL_PARAMS.CONTROLLER.interestRate,
+            constants.PROTOCOL_PARAMS.CONTROLLER.borrowThreshold,
+            constants.PROTOCOL_PARAMS.CONTROLLER.liquidationThreshold,
+        )
+
+        USDZContract = await ethers.getContractFactory("USDZ")
+        USDZInstance = await USDZContract.deploy(
+            ControllerInstance.address,
+            constants.PROTOCOL_PARAMS.USDZ.name,
+            constants.PROTOCOL_PARAMS.USDZ.symbol
+        )
+
+        await ControllerInstance.connect(owner).setUSDZAddress(USDZInstance.address)
     })
-    it("Testing some function in the contract", async () => {
+    it("Basic borrow", async () => {
+
+        // TODO need to approve xSUSHI first
+        await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateral_one)
+        await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowed_one)
+
 
     });
 

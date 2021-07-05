@@ -1,12 +1,17 @@
+const { BigNumber } = require("@ethersproject/bignumber");
+const { ethers } = require("hardhat");
 
 const CONSTANTS = {
+    TEST_PARAMS:{
+        collateral_one: ethers.utils.parseUnits("10", "ether"),
+        borrowed_one: BigNumber.from("10000000"),
+    },
     PROTOCOL_PARAMS: {
-        CONTROLLER: {  
+        CONTROLLER: {
             SCALING_FACTOR: 10000,          // fees and rates / 10 000
-            liqTotalFee:1000,
-            liqFeeShare:200,
-            totalIRate:500,
-            iRateShare:300,
+            liqTotalFee: 1000,
+            liqFeeShare: 200,
+            interestRate: 300,
             borrowThreshold: 20000,         // 200%
             liquidationThreshold: 15000,    // 150%
         },
@@ -44,5 +49,5 @@ const CONSTANTS = {
 
 
 module.exports = {
- constants: CONSTANTS
+    constants: CONSTANTS
 }
