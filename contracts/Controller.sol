@@ -180,7 +180,7 @@ contract Controller is Ownable {
         positions[msg.sender].debt += (_amount + interest_);
         positions[msg.sender].lastInterest = block.timestamp;
 
-        // TODO mint USDZ to sender
+        IUSDZ(usdzAddress).mint(msg.sender, _amount);
 
         emit Borrow(
             msg.sender,
@@ -200,14 +200,22 @@ contract Controller is Ownable {
 
         if (pos.debt > _amount) {
             require(
-                IUSDZ(usdzAddress).transferFrom(msg.sender, address(this), _amount),
+                IUSDZ(usdzAddress).transferFrom(
+                    msg.sender,
+                    address(this),
+                    _amount
+                ),
                 "repay transfer failed"
             );
             pos.debt -= _amount;
         } else {
             // repay all debt, as _amount >= debt
             require(
-                IUSDZ(usdzAddress).transferFrom(msg.sender, address(this), pos.debt),
+                IUSDZ(usdzAddress).transferFrom(
+                    msg.sender,
+                    address(this),
+                    pos.debt
+                ),
                 "repay transfer failed"
             );
             pos.debt = 0;
