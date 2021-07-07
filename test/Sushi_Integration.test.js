@@ -3,21 +3,34 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 const { constants } = require("./TestConstants")
+const { logPosition } = require("./TestUtils")
 
-let wallet1, wallet2, wallet3, wallet4, wallet5, wallet6
-let whale
-let owner
+const ERC20_ABI = require("../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json")
 
+let whale, whaleAddress
+let owner, ownerAddress
 
 let USDZContract
 let USDZInstance
 let ControllerContract
 let ControllerInstance
 
+let xSushiInstance = new ethers.Contract(
+    constants.CONTRACTS.TOKENS.XSUSHI,
+    ERC20_ABI.abi,
+    ethers.provider
+)
+let usdcInstance = new ethers.Contract(
+    constants.CONTRACTS.TOKENS.USDC,
+    ERC20_ABI.abi,
+    ethers.provider
+)
+
 
 describe("SushiSwap Integration Tests", function () {
     beforeEach(async () => {
-        [owner, wallet2, wallet3, wallet4, wallet5, wallet6] = await ethers.getSigners();
+        [owner] = await ethers.getSigners();
+        ownerAddress = await owner.getAddress()
 
         await hre.network.provider.request({
             method: "hardhat_impersonateAccount",
@@ -25,6 +38,7 @@ describe("SushiSwap Integration Tests", function () {
         })
 
         whale = await ethers.provider.getSigner(constants.WALLETS.XSUSHI_WHALE)
+        whaleAddress = constants.WALLETS.XSUSHI_WHALE
 
         let bal = await whale.getBalance()
         console.log("Balance: ", bal.toString());
@@ -50,12 +64,24 @@ describe("SushiSwap Integration Tests", function () {
         )
 
         await ControllerInstance.connect(owner).setUSDZAddress(USDZInstance.address)
+
     })
     it("Basic borrow", async () => {
+
+        console.log(await whale.getAddress());
+
+        await logPosition("Whale", whaleAddress, ControllerInstance)
+
+        await xSushiInstance.connect(whale).approve(
+            ControllerInstance.address,
+            constants.TEST_PARAMS.collateral_one
+        )
 
         // TODO need to approve xSUSHI first
         await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateral_one)
         await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowed_one)
+
+        await logPosition("Whale", whaleAddress, ControllerInstance)
 
 
     });
