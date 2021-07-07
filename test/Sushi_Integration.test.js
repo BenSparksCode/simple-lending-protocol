@@ -40,9 +40,6 @@ describe("SushiSwap Integration Tests", function () {
         whale = await ethers.provider.getSigner(constants.WALLETS.XSUSHI_WHALE)
         whaleAddress = constants.WALLETS.XSUSHI_WHALE
 
-        let bal = await whale.getBalance()
-        console.log("Balance: ", bal.toString());
-
         ControllerContract = await ethers.getContractFactory("Controller")
         ControllerInstance = await ControllerContract.connect(owner).deploy(
             ethers.constants.AddressZero, // update to address after deploy
@@ -68,7 +65,6 @@ describe("SushiSwap Integration Tests", function () {
     })
     it("Basic borrow", async () => {
 
-        console.log(await whale.getAddress());
 
         await logPosition("Whale", whaleAddress, ControllerInstance)
 
@@ -77,12 +73,18 @@ describe("SushiSwap Integration Tests", function () {
             constants.TEST_PARAMS.collateral_one
         )
 
-        // TODO need to approve xSUSHI first
+        console.log("Depositing 10 xSUSHI as collateral...");
         await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateral_one)
+
+        console.log("Borrowing 10 USDC...");
         await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowed_one)
 
         await logPosition("Whale", whaleAddress, ControllerInstance)
 
+        console.log("Borrowing 50 USDC...");
+        await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowed_one.mul(5))
+
+        await logPosition("Whale", whaleAddress, ControllerInstance)
 
     });
 
