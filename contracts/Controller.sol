@@ -234,6 +234,18 @@ contract Controller is Ownable {
     }
 
     // ---------------------------------------------------------------------
+    // PUBLIC VIEW FUNCTIONS
+    // ---------------------------------------------------------------------
+
+    function getPosition(address _account) public view returns(uint256, uint256, uint256){
+        return(
+            positions[_account].collateral,
+            positions[_account].debt,
+            positions[_account].lastInterest
+        );
+    }
+
+    // ---------------------------------------------------------------------
     // HELPER FUNCTIONS
     // ---------------------------------------------------------------------
 
