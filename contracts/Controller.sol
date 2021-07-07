@@ -290,8 +290,8 @@ contract Controller is Ownable {
             xSushiToUsdcPath
         )[1];
         // col. ratio = collateral USDC value / debt USDC value
-        // E.g. 2:1 will return 20 000 (uses scaling factor)
-        return (collateralValue_ * SCALING_FACTOR) / _totalDebt;
+        // E.g. 2:1 will return 2 000 000 (2000000/10000=200) for 200%
+        return (collateralValue_ * SCALING_FACTOR * 100) / _totalDebt;
     }
 
     // Calculates interest on position of given address
