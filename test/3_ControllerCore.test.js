@@ -1,5 +1,9 @@
 // -------------------------
-// USDZ Token tests
+// Core Controller tests
+// - Deposit
+// - Borrow
+// - Withdraw
+// - Repay
 // -------------------------
 
 const { BigNumber } = require("@ethersproject/bignumber");
@@ -43,14 +47,6 @@ describe("Basic tests", function () {
 
         await ControllerInstance.connect(owner).setUSDZAddress(USDZInstance.address)
     })
-    it("Controller address is correctly set and viewable", async () => {});
-    it("Decimals is correctly set and viewable", async () => {});
-    it("Controller can mint", async () => {});
-    it("Non-controller can't mint", async () => {});
-    it("Controller can burn", async () => {});
-    it("Non-controller can't burn", async () => {});
-    it("Mint event emits correctly", async () => {});
-    it("Burn event emits correctly", async () => {});
     
-    // TODO add Permit and transferWithAuthorization
+    it("", async () => {});
 });
