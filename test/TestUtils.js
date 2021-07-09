@@ -1,7 +1,21 @@
+const { ethers } = require('hardhat');
 const { BigNumber } = require("@ethersproject/bignumber");
 const { constants } = require("./TestConstants")
 
 const SCALE = constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR
+
+// Gets the time of the last block.
+export const currentTime = async () => {
+    const { timestamp } = await ethers.provider.getBlock('latest');
+    return timestamp;
+};
+
+// Increases the time in the EVM.
+// seconds = number of seconds to increase the time by
+export const fastForward = async (seconds) => {
+    await ethers.provider.send("evm_increaseTime", [seconds])
+    await ethers.provider.send("evm_mine", [])
+};
 
 const logPosition = async (name, address, ControllerInstance) => {
 
@@ -20,4 +34,6 @@ const logPosition = async (name, address, ControllerInstance) => {
 
 module.exports = {
     logPosition: logPosition,
+    currentTime: currentTime,
+    fastForward: fastForward,
 }

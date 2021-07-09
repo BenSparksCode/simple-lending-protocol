@@ -3,8 +3,9 @@ const { ethers } = require("hardhat");
 
 const CONSTANTS = {
     TEST_PARAMS:{
-        collateral_one: ethers.utils.parseUnits("10", "ether"), // 10 xSUSHI
-        borrowed_one: BigNumber.from("1000000").mul(10),        // 10 USDC 
+        collateralOne: ethers.utils.parseUnits("10", "ether"), // 10 xSUSHI
+        borrowedOne: BigNumber.from("1000000").mul(10),        // 10 USDC
+        secondsInAYear: 31556952, 
     },
     PROTOCOL_PARAMS: {
         CONTROLLER: {
