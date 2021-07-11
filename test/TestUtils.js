@@ -5,14 +5,14 @@ const { constants } = require("./TestConstants")
 const SCALE = constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR
 
 // Gets the time of the last block.
-export const currentTime = async () => {
+const currentTime = async () => {
     const { timestamp } = await ethers.provider.getBlock('latest');
     return timestamp;
 };
 
 // Increases the time in the EVM.
 // seconds = number of seconds to increase the time by
-export const fastForward = async (seconds) => {
+const fastForward = async (seconds) => {
     await ethers.provider.send("evm_increaseTime", [seconds])
     await ethers.provider.send("evm_mine", [])
 };
