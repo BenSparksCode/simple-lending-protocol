@@ -48,4 +48,31 @@ describe("Controller Basic tests", function () {
     })
     
     it("Constructor sets up contract properly", async () => {});
+    it("Integer variables are publically viewable", async () => {});
+    it("Address variables are publically veiwable", async () => {});
+    it("Address[] variables are publically viewable", async () => {});
+    it("getPosition() returns accurate position", async () => {
+        // should be publically callable without signer
+    });
+    it("getCurrentCollateralRatio() returns accurate current collateral ratio", async () => {
+        // should be publically callable without signer
+    });
+    it("getForwardCollateralRatio() returns accurate forward collateral ratio", async () => {
+        // should be publically callable without signer
+    });
+    it("_getCollateralRatio() should NOT be externally callable", async () => {});
+    it("calcInterest() returns accurate interest for position", async () => {
+        // should be publically callable without signer
+    });
+    it("setFeesAndRates() works as expected when called by owner", async () => {});
+    it("setFeesAndRates() reverts when called by non-owner", async () => {});
+    it("setThresholds() works as expected when called by owner", async () => {});
+    it("setThresholds() reverts when called by non-owner", async () => {});
+    it("setTokenAddresses() works as expected when called by owner", async () => {});
+    it("setTokenAddresses() reverts when called by non-owner", async () => {});
+    it("setSushiAddresses() works as expected when called by owner", async () => {});
+    it("setSushiAddresses() reverts when called by non-owner", async () => {});
+    it("", async () => {});
+    it("", async () => {});
+    it("", async () => {});
 });

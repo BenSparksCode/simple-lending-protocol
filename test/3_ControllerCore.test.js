@@ -49,4 +49,7 @@ describe("Controller Core tests", function () {
     })
     
     it("", async () => {});
+    // - all event tests
+    // - check using getPosition that positions
+    // always reflect as expected
 });
