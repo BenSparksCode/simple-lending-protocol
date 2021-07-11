@@ -10,7 +10,7 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 const { constants } = require("./TestConstants")
-const { logPosition, currentTime } = require("./TestUtils")
+const { logPosition, currentTime, depositAndBorrow } = require("./TestUtils")
 
 const ERC20_ABI = require("../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json")
 
@@ -39,7 +39,7 @@ describe("Controller Basic tests", function () {
         })
         whale = await ethers.provider.getSigner(constants.WALLETS.XSUSHI_WHALE)
         whaleAddress = constants.WALLETS.XSUSHI_WHALE
-        
+
         ControllerContract = await ethers.getContractFactory("Controller")
         ControllerInstance = await ControllerContract.connect(owner).deploy(
             ethers.constants.AddressZero, // update to address after token deployed
@@ -98,15 +98,13 @@ describe("Controller Basic tests", function () {
         expect(debt).to.equal(0)
         expect(lastInterest).to.equal(0)
     });
-    it.only("getPosition() returns positive position correctly", async () => {
+    it("getPosition() returns positive position correctly", async () => {
         // should be publically callable without signer
         let collateral, debt, lastInterest, tx, time
         [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
         expect(collateral).to.equal(0)
         expect(debt).to.equal(0)
         expect(lastInterest).to.equal(0)
-
-        await logPosition("Whale", whaleAddress, ControllerInstance)
 
         await xSushiInstance.connect(whale).approve(
             ControllerInstance.address,
@@ -123,8 +121,21 @@ describe("Controller Basic tests", function () {
         expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne.mul(5))
         expect(lastInterest).to.equal(time)
     });
-    it("getCurrentCollateralRatio() returns accurate current collateral ratio", async () => {
+    it.only("getCurrentCollateralRatio() returns accurate current collateral ratio", async () => {
         // should be publically callable without signer
+        let colRat
+        await depositAndBorrow(
+            whale,
+            constants.TEST_PARAMS.collateralOne,
+            constants.TEST_PARAMS.borrowedOne,
+            xSushiInstance,
+            ControllerInstance
+        )
+
+        colRat = await ControllerInstance.getCurrentCollateralRatio(whaleAddress)
+        console.log(colRat.toString());
+        // TODO where to store the correct Col Rat? Need live xSUSHI price?
+        expect(colRat).to.equal(0)
     });
     it("getForwardCollateralRatio() returns accurate forward collateral ratio", async () => {
         // should be publically callable without signer

@@ -30,9 +30,25 @@ const logPosition = async (name, address, ControllerInstance) => {
     console.log("--------------------------");
 }
 
+const depositAndBorrow = async (signer, collateral, debt, xSushiInstance, ControllerInstance) => {
+    await xSushiInstance.connect(signer).approve(
+        ControllerInstance.address,
+        collateral
+    )
+    await ControllerInstance.connect(signer).deposit(collateral)
+    await ControllerInstance.connect(signer).borrow(debt)
+}
+
+// returns current xSUSHI price in USDC from SushiSwap
+const xSUSHIPrice = async () => {
+    // TODO
+}
+
 
 module.exports = {
     logPosition: logPosition,
     currentTime: currentTime,
     fastForward: fastForward,
+    depositAndBorrow: depositAndBorrow,
+    xSUSHIPrice: xSUSHIPrice
 }
