@@ -73,19 +73,19 @@ describe("SushiSwap Integration Tests", function () {
 
         await xSushiInstance.connect(whale).approve(
             ControllerInstance.address,
-            constants.TEST_PARAMS.collateral_one
+            constants.TEST_PARAMS.collateralOne
         )
 
         console.log("Depositing 10 xSUSHI as collateral...");
-        await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateral_one)
+        await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne)
 
         console.log("Borrowing 10 USDC...");
-        await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowed_one)
+        await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.collateralOne)
 
         await logPosition("Whale", whaleAddress, ControllerInstance)
 
         console.log("Borrowing 50 USDC...");
-        await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowed_one.mul(5))
+        await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne.mul(5))
 
         await logPosition("Whale", whaleAddress, ControllerInstance)
 
