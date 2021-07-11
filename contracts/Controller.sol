@@ -227,9 +227,12 @@ contract Controller is Ownable {
     // Liquidates account if collateral ratio below safety threshold
     function liquidate(address _account) public {
         // TODO
-
-        // TODO if USDC from liquidation < account's debt - add different to protocol shortfall
-
+        // calc interest
+        // calc forward Col Rat
+        // if col rat < threshold: liquidate
+        // split collateral across accounts
+        // market sell some collateral for USDC 
+        // account for protocol shortfall
         emit Liquidation(_account, msg.sender, 0, 0, 0);
     }
 

@@ -18,7 +18,6 @@ export const fastForward = async (seconds) => {
 };
 
 const logPosition = async (name, address, ControllerInstance) => {
-
     const pos = await ControllerInstance.getPosition(address)
     const colRat = await ControllerInstance.getCurrentCollateralRatio(address)
 
