@@ -5,11 +5,14 @@ const CONSTANTS = {
     TEST_PARAMS:{
         collateralOne: ethers.utils.parseUnits("10", "ether"), // 10 xSUSHI
         borrowedOne: BigNumber.from("1000000").mul(10),        // 10 USDC
+        FPToDecimal: BigNumber.from(2).pow(64), 
         secondsInAYear: 31556952, 
     },
     PROTOCOL_PARAMS: {
         CONTROLLER: {
             SCALING_FACTOR: 10000,          // fees and rates / 10 000
+            SECONDS_IN_YEAR: 31556952,
+            SECONDS_IN_YEAR_FP: BigNumber.from(31556952).mul(BigNumber.from(2).pow(64)),
             liqTotalFee: 1000,
             liqFeeShare: 200,
             interestRate: 300,

@@ -10,7 +10,6 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 const { constants } = require("./TestConstants")
-const { logPosition } = require("./TestUtils")
 
 let owner, ownerAddress
 
@@ -44,13 +43,39 @@ describe("Controller Basic tests", function () {
             constants.PROTOCOL_PARAMS.USDZ.symbol
         )
 
-        await ControllerInstance.connect(owner).setUSDZAddress(USDZInstance.address)
+        await ControllerInstance.connect(owner).setTokenAddresses(
+            constants.CONTRACTS.TOKENS.XSUSHI,
+            constants.CONTRACTS.TOKENS.USDC,
+            USDZInstance.address
+        )
     })
-    
-    it("Constructor sets up contract properly", async () => {});
-    it("Integer variables are publically viewable", async () => {});
-    it("Address variables are publically veiwable", async () => {});
-    it("Address[] variables are publically viewable", async () => {});
+
+    it.only("Constructor sets up contract properly", async () => {
+        // Constructor called above in the beforeEach block
+        // Addresses
+        expect(await ControllerInstance.usdzAddress()).to.equal(USDZInstance.address)
+        expect(await ControllerInstance.usdcAddress()).to.equal(constants.CONTRACTS.TOKENS.USDC)
+        expect(await ControllerInstance.xSushiAddress()).to.equal(constants.CONTRACTS.TOKENS.XSUSHI)
+        expect(await ControllerInstance.sushiRouterAddress()).to.equal(constants.CONTRACTS.SUSHI.ROUTER)
+        // Fees
+        expect(await ControllerInstance.liquidationFee()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liqTotalFee)
+        expect(await ControllerInstance.liquidatorFeeShare()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeShare)
+        expect(await ControllerInstance.interestRate()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.interestRate)
+        // Thresholds
+        expect(await ControllerInstance.borrowThreshold()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.borrowThreshold)
+        expect(await ControllerInstance.liquidationThreshold()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liquidationThreshold)
+        // xSUSHI to USDC swap path (address[])
+        expect(await ControllerInstance.xSushiToUsdcPath(0)).to.equal(constants.CONTRACTS.TOKENS.XSUSHI)
+        expect(await ControllerInstance.xSushiToUsdcPath(1)).to.equal(constants.CONTRACTS.TOKENS.USDC)
+        // Constants
+        expect(await ControllerInstance.SECONDS_IN_YEAR()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.SECONDS_IN_YEAR_FP)
+        expect(await ControllerInstance.SCALING_FACTOR()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR)
+        // check deployer is owner
+        expect(await ControllerInstance.owner()).to.equal(ownerAddress)
+    });
+    it("Integer variables are publically viewable", async () => { });
+    it("Address variables are publically veiwable", async () => { });
+    it("Address[] variables are publically viewable", async () => { });
     it("getPosition() returns accurate position", async () => {
         // should be publically callable without signer
     });
@@ -60,19 +85,16 @@ describe("Controller Basic tests", function () {
     it("getForwardCollateralRatio() returns accurate forward collateral ratio", async () => {
         // should be publically callable without signer
     });
-    it("_getCollateralRatio() should NOT be externally callable", async () => {});
+    it("_getCollateralRatio() should NOT be externally callable", async () => { });
     it("calcInterest() returns accurate interest for position", async () => {
         // should be publically callable without signer
     });
-    it("setFeesAndRates() works as expected when called by owner", async () => {});
-    it("setFeesAndRates() reverts when called by non-owner", async () => {});
-    it("setThresholds() works as expected when called by owner", async () => {});
-    it("setThresholds() reverts when called by non-owner", async () => {});
-    it("setTokenAddresses() works as expected when called by owner", async () => {});
-    it("setTokenAddresses() reverts when called by non-owner", async () => {});
-    it("setSushiAddresses() works as expected when called by owner", async () => {});
-    it("setSushiAddresses() reverts when called by non-owner", async () => {});
-    it("", async () => {});
-    it("", async () => {});
-    it("", async () => {});
+    it("setFeesAndRates() works as expected when called by owner", async () => { });
+    it("setFeesAndRates() reverts when called by non-owner", async () => { });
+    it("setThresholds() works as expected when called by owner", async () => { });
+    it("setThresholds() reverts when called by non-owner", async () => { });
+    it("setTokenAddresses() works as expected when called by owner", async () => { });
+    it("setTokenAddresses() reverts when called by non-owner", async () => { });
+    it("setSushiAddresses() works as expected when called by owner", async () => { });
+    it("setSushiAddresses() reverts when called by non-owner", async () => { });
 });

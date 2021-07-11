@@ -60,8 +60,11 @@ describe("SushiSwap Integration Tests", function () {
             constants.PROTOCOL_PARAMS.USDZ.symbol
         )
 
-        await ControllerInstance.connect(owner).setUSDZAddress(USDZInstance.address)
-
+        await ControllerInstance.connect(owner).setTokenAddresses(
+            constants.CONTRACTS.TOKENS.XSUSHI,
+            constants.CONTRACTS.TOKENS.USDC,
+            USDZInstance.address
+        )
     })
     it("Basic borrow", async () => {
 
