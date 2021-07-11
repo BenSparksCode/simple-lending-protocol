@@ -20,7 +20,7 @@ let USDZInstance
 let ControllerContract
 let ControllerInstance
 
-describe("Basic tests", function () {
+describe("Controller Core tests", function () {
     beforeEach(async () => {
         [owner] = await ethers.getSigners();
         ownerAddress = await owner.getAddress()

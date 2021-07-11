@@ -16,7 +16,7 @@ let USDZInstance
 let ControllerContract
 let ControllerInstance
 
-describe("Basic tests", function () {
+describe("USDZ Token tests", function () {
     beforeEach(async () => {
         [owner] = await ethers.getSigners();
         ownerAddress = await owner.getAddress()

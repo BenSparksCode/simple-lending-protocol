@@ -1,6 +1,6 @@
 // -------------------------
-// Protocol math tests
-// - Interest calculations
+// Scenario tests
+// - full complex scenarios
 // -------------------------
 
 const { BigNumber } = require("@ethersproject/bignumber");
@@ -17,7 +17,7 @@ let USDZInstance
 let ControllerContract
 let ControllerInstance
 
-describe("Math tests", function () {
+describe("Scenario tests", function () {
     beforeEach(async () => {
         [owner] = await ethers.getSigners();
         ownerAddress = await owner.getAddress()
