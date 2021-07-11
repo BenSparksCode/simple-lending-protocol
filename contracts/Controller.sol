@@ -231,7 +231,7 @@ contract Controller is Ownable {
         // calc forward Col Rat
         // if col rat < threshold: liquidate
         // split collateral across accounts
-        // market sell some collateral for USDC 
+        // market sell some collateral for USDC
         // account for protocol shortfall
         emit Liquidation(_account, msg.sender, 0, 0, 0);
     }
@@ -240,8 +240,16 @@ contract Controller is Ownable {
     // PUBLIC VIEW FUNCTIONS
     // ---------------------------------------------------------------------
 
-    function getPosition(address _account) public view returns(uint256, uint256, uint256){
-        return(
+    function getPosition(address _account)
+        public
+        view
+        returns (
+            uint256,
+            uint256,
+            uint256
+        )
+    {
+        return (
             positions[_account].collateral,
             positions[_account].debt,
             positions[_account].lastInterest
@@ -348,7 +356,7 @@ contract Controller is Ownable {
         uint256 _liqTotalFee,
         uint256 _liqFeeShare,
         uint256 _interestRate
-    ) public onlyOwner {
+    ) external onlyOwner {
         // Liquidation fees
         require(
             _liqTotalFee <= SCALING_FACTOR && _liqTotalFee >= 0,
@@ -372,7 +380,7 @@ contract Controller is Ownable {
     }
 
     function setThresholds(uint256 _borrowThreshold, uint256 _liqThreshold)
-        public
+        external
         onlyOwner
     {
         // both thresholds should be > scaling factor
@@ -389,13 +397,25 @@ contract Controller is Ownable {
         liquidationThreshold = _liqThreshold;
     }
 
-    function setUSDZAddress(address _newAddress) external onlyOwner() {
-        require(_newAddress != address(0), "usdz contract not zero address");
-        usdzAddress = _newAddress;
+    // sets token addresses and swap path address []
+    function setTokenAddresses(
+        address _xsushi,
+        address _usdc,
+        address _usdz
+    ) external onlyOwner() {
+        require(_xsushi != address(0), "zero address not allowed");
+        require(_usdc != address(0), "zero address not allowed");
+        require(_usdz != address(0), "zero address not allowed");
+        xSushiAddress = _xsushi;
+        usdzAddress = _usdz;
+        usdcAddress = _usdc;
+        xSushiToUsdcPath[0] = _xsushi;
+        xSushiToUsdcPath[1] = _usdc;
     }
 
-    function setXSUSHIAddress(address _newAddress) external onlyOwner() {
-        require(_newAddress != address(0), "xSUSHI contract not zero address");
-        xSushiAddress = _newAddress;
+    // Sets any SushiSwap protocol contract addresses
+    function setSushiAddresses(address _sushiRouter) external onlyOwner() {
+        require(_sushiRouter != address(0), "zero address not allowed");
+        sushiRouterAddress = _sushiRouter;
     }
 }
