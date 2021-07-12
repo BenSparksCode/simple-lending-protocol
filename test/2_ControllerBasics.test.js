@@ -10,7 +10,13 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 const { constants } = require("./TestConstants")
-const { logPosition, currentTime, depositAndBorrow } = require("./TestUtils")
+const {
+    logPosition,
+    currentTime,
+    depositAndBorrow,
+    xSUSHIPrice,
+    calcCollateralRatio
+} = require("./TestUtils")
 
 const ERC20_ABI = require("../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json")
 
@@ -45,7 +51,13 @@ describe("Controller Basic tests", function () {
             ethers.constants.AddressZero, // update to address after token deployed
             constants.CONTRACTS.TOKENS.USDC,
             constants.CONTRACTS.TOKENS.XSUSHI,
+            constants.CONTRACTS.TOKENS.WETH,
             constants.CONTRACTS.SUSHI.ROUTER,
+            [
+                constants.CONTRACTS.TOKENS.XSUSHI,
+                constants.CONTRACTS.TOKENS.WETH,
+                constants.CONTRACTS.TOKENS.USDC
+            ],
             constants.PROTOCOL_PARAMS.CONTROLLER.liqTotalFee,
             constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeShare,
             constants.PROTOCOL_PARAMS.CONTROLLER.interestRate,
@@ -61,9 +73,10 @@ describe("Controller Basic tests", function () {
         )
 
         await ControllerInstance.connect(owner).setTokenAddresses(
-            constants.CONTRACTS.TOKENS.XSUSHI,
+            USDZInstance.address,
             constants.CONTRACTS.TOKENS.USDC,
-            USDZInstance.address
+            constants.CONTRACTS.TOKENS.XSUSHI,
+            constants.CONTRACTS.TOKENS.WETH,
         )
     })
 
@@ -123,7 +136,7 @@ describe("Controller Basic tests", function () {
     });
     it.only("getCurrentCollateralRatio() returns accurate current collateral ratio", async () => {
         // should be publically callable without signer
-        let colRat
+        let colRat, colPrice
         await depositAndBorrow(
             whale,
             constants.TEST_PARAMS.collateralOne,
@@ -132,10 +145,14 @@ describe("Controller Basic tests", function () {
             ControllerInstance
         )
 
+        await logPosition("Whale", whaleAddress, ControllerInstance)
+
+        expectedColRat = await calcCollateralRatio(100, 1)
+        console.log("expected\t",expectedColRat.toString());
+
         colRat = await ControllerInstance.getCurrentCollateralRatio(whaleAddress)
-        console.log(colRat.toString());
-        // TODO where to store the correct Col Rat? Need live xSUSHI price?
-        expect(colRat).to.equal(0)
+        console.log("actual\t\t", colRat.toString());
+        expect(colRat).to.equal(expectedColRat)
     });
     it("getForwardCollateralRatio() returns accurate forward collateral ratio", async () => {
         // should be publically callable without signer

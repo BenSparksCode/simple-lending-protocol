@@ -45,6 +45,7 @@ describe("SushiSwap Integration Tests", function () {
             ethers.constants.AddressZero, // update to address after deploy
             constants.CONTRACTS.TOKENS.USDC,
             constants.CONTRACTS.TOKENS.XSUSHI,
+            constants.CONTRACTS.TOKENS.WETH,
             constants.CONTRACTS.SUSHI.ROUTER,
             constants.PROTOCOL_PARAMS.CONTROLLER.liqTotalFee,
             constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeShare,
