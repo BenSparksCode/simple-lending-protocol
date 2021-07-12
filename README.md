@@ -1,5 +1,7 @@
 # Simple Lending Protocol
 
+Borrow a dollar-pegged stablecoin against your productive cryptoassets (starting with xSUSHI) 🚀
+
 ## Contract System
 
 - ```USDZ```
