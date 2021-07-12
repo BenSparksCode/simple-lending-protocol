@@ -58,15 +58,11 @@ const xSUSHIPrice = async (xsushiAmount) => {
             constants.CONTRACTS.TOKENS.USDC
         ]
     )
-
-    console.log(res[0].toString(), res[1].toString(), res[2].toString());
-
     return res[2]
 }
 
 const calcCollateralRatio = async (numXSushi, numUSDZ) => {
     const xsushiPrice = await xSUSHIPrice(numXSushi)
-    console.log("Price:", xsushiPrice.toString());
     return (
         xsushiPrice
             .mul(constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR)

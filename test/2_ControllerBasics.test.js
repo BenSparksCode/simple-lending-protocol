@@ -136,7 +136,7 @@ describe("Controller Basic tests", function () {
     });
     it.only("getCurrentCollateralRatio() returns accurate current collateral ratio", async () => {
         // should be publically callable without signer
-        let colRat, colPrice
+        let colRat, expectedColRat
         await depositAndBorrow(
             whale,
             constants.TEST_PARAMS.collateralOne,
@@ -145,13 +145,8 @@ describe("Controller Basic tests", function () {
             ControllerInstance
         )
 
-        await logPosition("Whale", whaleAddress, ControllerInstance)
-
-        expectedColRat = await calcCollateralRatio(100, 1)
-        console.log("expected\t",expectedColRat.toString());
-
+        expectedColRat = await calcCollateralRatio(10, 10)
         colRat = await ControllerInstance.getCurrentCollateralRatio(whaleAddress)
-        console.log("actual\t\t", colRat.toString());
         expect(colRat).to.equal(expectedColRat)
     });
     it("getForwardCollateralRatio() returns accurate forward collateral ratio", async () => {
