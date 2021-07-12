@@ -52,11 +52,7 @@ const depositAndBorrow = async (signer, collateral, debt, xSushiInstance, Contro
 const xSUSHIPrice = async (xsushiAmount) => {
     let res = await SushiRouter.getAmountsOut(
         ethers.utils.parseUnits(xsushiAmount + '', "ether"),
-        [
-            constants.CONTRACTS.TOKENS.XSUSHI,
-            constants.CONTRACTS.TOKENS.WETH,
-            constants.CONTRACTS.TOKENS.USDC
-        ]
+        constants.PROTOCOL_PARAMS.CONTROLLER.xSushiToUsdcPath
     )
     return res[2]
 }

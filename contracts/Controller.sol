@@ -9,8 +9,6 @@ import "./utils/ABDKMath64x64.sol";
 import "./interfaces/IUniswapV2Router02.sol";
 import "./IUSDZ.sol";
 
-import "hardhat/console.sol";
-
 contract Controller is Ownable {
     // using ABDKMath64x64 for int128;
 
@@ -24,9 +22,7 @@ contract Controller is Ownable {
 
     uint256 public protocolShortfall;
 
-    address public wethAddress;
     address public usdzAddress;
-    address public usdcAddress;
     address public xSushiAddress;
     address public sushiRouterAddress;
 
@@ -75,9 +71,7 @@ contract Controller is Ownable {
 
     constructor(
         address _usdzAddress,
-        address _usdcAddress,
         address _xSushiAddress,
-        address _wethAddress,
         address _routerAddress,
         address[] memory _swapPath,
         uint256 _liqTotalFee,
@@ -87,9 +81,7 @@ contract Controller is Ownable {
         uint256 _liqThreshold
     ) {
         usdzAddress = _usdzAddress;
-        usdcAddress = _usdcAddress;
         xSushiAddress = _xSushiAddress;
-        wethAddress = _wethAddress;
         sushiRouterAddress = _routerAddress;
 
         // fees and rates use SCALING_FACTOR (default 10 000)
@@ -101,10 +93,6 @@ contract Controller is Ownable {
 
         // building xSUSHI-USDC SushiSwap pricing path
         xSushiToUsdcPath = _swapPath;
-        // xSushiToUsdcPath = new address[](3);
-        // xSushiToUsdcPath[0] = _xSushiAddress;
-        // xSushiToUsdcPath[1] = _wethAddress;
-        // xSushiToUsdcPath[2] = _usdcAddress;
 
         // set SECONDS_IN_YEAR for interest calculations
         SECONDS_IN_YEAR = ABDKMath64x64.fromUInt(31556952);
@@ -309,10 +297,6 @@ contract Controller is Ownable {
             xSushiToUsdcPath
         )[2];
 
-        console.log("collateral:", collateral_);
-        console.log("debt:", _totalDebt);
-        console.log("col value:", collateralValue_);
-
         // col. ratio = collateral USDC value / debt USDC value
         // E.g. 2:1 will return 2 000 000 (2000000/10000=200) for 200%
         return (collateralValue_ * SCALING_FACTOR * 100) / (_totalDebt);
@@ -410,22 +394,9 @@ contract Controller is Ownable {
         liquidationThreshold = _liqThreshold;
     }
 
-    // sets token addresses and swap path address []
-    function setTokenAddresses(
-        address _usdz,
-        address _usdc,
-        address _xsushi,
-        address _weth
-    ) external onlyOwner() {
+    function setUSDZAddress(address _usdz) external onlyOwner() {
         require(_usdz != address(0), "zero address not allowed");
-        require(_usdc != address(0), "zero address not allowed");
-        require(_xsushi != address(0), "zero address not allowed");
-        require(_weth != address(0), "zero address not allowed");
-
-        xSushiAddress = _xsushi;
         usdzAddress = _usdz;
-        usdcAddress = _usdc;
-        wethAddress = _weth;
     }
 
     // Sets any SushiSwap protocol contract addresses

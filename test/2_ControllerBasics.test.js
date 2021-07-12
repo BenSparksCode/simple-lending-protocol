@@ -34,7 +34,7 @@ let xSushiInstance = new ethers.Contract(
     ethers.provider
 )
 
-describe("Controller Basic tests", function () {
+describe.only("Controller Basic tests", function () {
     beforeEach(async () => {
         [owner] = await ethers.getSigners();
         ownerAddress = await owner.getAddress()
@@ -49,15 +49,9 @@ describe("Controller Basic tests", function () {
         ControllerContract = await ethers.getContractFactory("Controller")
         ControllerInstance = await ControllerContract.connect(owner).deploy(
             ethers.constants.AddressZero, // update to address after token deployed
-            constants.CONTRACTS.TOKENS.USDC,
             constants.CONTRACTS.TOKENS.XSUSHI,
-            constants.CONTRACTS.TOKENS.WETH,
             constants.CONTRACTS.SUSHI.ROUTER,
-            [
-                constants.CONTRACTS.TOKENS.XSUSHI,
-                constants.CONTRACTS.TOKENS.WETH,
-                constants.CONTRACTS.TOKENS.USDC
-            ],
+            constants.PROTOCOL_PARAMS.CONTROLLER.xSushiToUsdcPath,
             constants.PROTOCOL_PARAMS.CONTROLLER.liqTotalFee,
             constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeShare,
             constants.PROTOCOL_PARAMS.CONTROLLER.interestRate,
@@ -72,11 +66,8 @@ describe("Controller Basic tests", function () {
             constants.PROTOCOL_PARAMS.USDZ.symbol
         )
 
-        await ControllerInstance.connect(owner).setTokenAddresses(
-            USDZInstance.address,
-            constants.CONTRACTS.TOKENS.USDC,
-            constants.CONTRACTS.TOKENS.XSUSHI,
-            constants.CONTRACTS.TOKENS.WETH,
+        await ControllerInstance.connect(owner).setUSDZAddress(
+            USDZInstance.address
         )
     })
 
@@ -84,7 +75,6 @@ describe("Controller Basic tests", function () {
         // Constructor called above in the beforeEach block
         // Addresses
         expect(await ControllerInstance.usdzAddress()).to.equal(USDZInstance.address)
-        expect(await ControllerInstance.usdcAddress()).to.equal(constants.CONTRACTS.TOKENS.USDC)
         expect(await ControllerInstance.xSushiAddress()).to.equal(constants.CONTRACTS.TOKENS.XSUSHI)
         expect(await ControllerInstance.sushiRouterAddress()).to.equal(constants.CONTRACTS.SUSHI.ROUTER)
         // Fees
@@ -96,7 +86,8 @@ describe("Controller Basic tests", function () {
         expect(await ControllerInstance.liquidationThreshold()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liquidationThreshold)
         // xSUSHI to USDC swap path (address[])
         expect(await ControllerInstance.xSushiToUsdcPath(0)).to.equal(constants.CONTRACTS.TOKENS.XSUSHI)
-        expect(await ControllerInstance.xSushiToUsdcPath(1)).to.equal(constants.CONTRACTS.TOKENS.USDC)
+        expect(await ControllerInstance.xSushiToUsdcPath(1)).to.equal(constants.CONTRACTS.TOKENS.WETH)
+        expect(await ControllerInstance.xSushiToUsdcPath(2)).to.equal(constants.CONTRACTS.TOKENS.USDC)
         // Constants
         expect(await ControllerInstance.SECONDS_IN_YEAR()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.SECONDS_IN_YEAR_FP)
         expect(await ControllerInstance.SCALING_FACTOR()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR)
@@ -134,7 +125,7 @@ describe("Controller Basic tests", function () {
         expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne.mul(5))
         expect(lastInterest).to.equal(time)
     });
-    it.only("getCurrentCollateralRatio() returns accurate current collateral ratio", async () => {
+    it("getCurrentCollateralRatio() returns accurate current collateral ratio", async () => {
         // should be publically callable without signer
         let colRat, expectedColRat
         await depositAndBorrow(
@@ -149,19 +140,19 @@ describe("Controller Basic tests", function () {
         colRat = await ControllerInstance.getCurrentCollateralRatio(whaleAddress)
         expect(colRat).to.equal(expectedColRat)
     });
-    it("getForwardCollateralRatio() returns accurate forward collateral ratio", async () => {
-        // should be publically callable without signer
-    });
-    it("_getCollateralRatio() should NOT be externally callable", async () => { });
-    it("calcInterest() returns accurate interest for position", async () => {
-        // should be publically callable without signer
-    });
-    it("setFeesAndRates() works as expected when called by owner", async () => { });
-    it("setFeesAndRates() reverts when called by non-owner", async () => { });
-    it("setThresholds() works as expected when called by owner", async () => { });
-    it("setThresholds() reverts when called by non-owner", async () => { });
-    it("setTokenAddresses() works as expected when called by owner", async () => { });
-    it("setTokenAddresses() reverts when called by non-owner", async () => { });
-    it("setSushiAddresses() works as expected when called by owner", async () => { });
-    it("setSushiAddresses() reverts when called by non-owner", async () => { });
+    // it("getForwardCollateralRatio() returns accurate forward collateral ratio", async () => {
+    //     // should be publically callable without signer
+    // });
+    // it("_getCollateralRatio() should NOT be externally callable", async () => { });
+    // it("calcInterest() returns accurate interest for position", async () => {
+    //     // should be publically callable without signer
+    // });
+    // it("setFeesAndRates() works as expected when called by owner", async () => { });
+    // it("setFeesAndRates() reverts when called by non-owner", async () => { });
+    // it("setThresholds() works as expected when called by owner", async () => { });
+    // it("setThresholds() reverts when called by non-owner", async () => { });
+    // it("setTokenAddresses() works as expected when called by owner", async () => { });
+    // it("setTokenAddresses() reverts when called by non-owner", async () => { });
+    // it("setSushiAddresses() works as expected when called by owner", async () => { });
+    // it("setSushiAddresses() reverts when called by non-owner", async () => { });
 });
