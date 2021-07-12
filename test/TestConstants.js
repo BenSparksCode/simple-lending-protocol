@@ -6,7 +6,8 @@ const CONSTANTS = {
         collateralOne: ethers.utils.parseUnits("10", "ether"), // 10 xSUSHI
         borrowedOne: BigNumber.from("1000000").mul(10),        // 10 USDC
         FPToDecimal: BigNumber.from(2).pow(64), 
-        secondsInAYear: 31556952, 
+        secondsInAYear: 31556952,
+        e: 2.71828
     },
     PROTOCOL_PARAMS: {
         CONTROLLER: {

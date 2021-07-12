@@ -58,13 +58,25 @@ const xSUSHIPrice = async (xsushiAmount) => {
 }
 
 const calcCollateralRatio = async (numXSushi, numUSDZ) => {
-    const xsushiPrice = await xSUSHIPrice(numXSushi)
+    const xsushiValue = await xSUSHIPrice(numXSushi)
+    // console.log(xsushiValue.toString());
     return (
-        xsushiPrice
+        xsushiValue
             .mul(constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR)
             .mul(100)
             .div(BigNumber.from(numUSDZ).mul(1000000))
     )
+}
+
+const calcInterest = async (debt, startTime, endTime) => {
+    const i = constants.PROTOCOL_PARAMS.CONTROLLER.interestRate / constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR
+    const duration = (endTime - toJSNum(startTime)) / constants.TEST_PARAMS.secondsInAYear
+    const interest = (toJSNum(debt) * Math.pow(constants.TEST_PARAMS.e, (i * duration))) - toJSNum(debt)
+    return Math.floor(interest)
+}
+
+const toJSNum = (bigNum) => {
+    return parseInt(bigNum.toString())
 }
 
 
@@ -75,4 +87,5 @@ module.exports = {
     depositAndBorrow: depositAndBorrow,
     xSUSHIPrice: xSUSHIPrice,
     calcCollateralRatio: calcCollateralRatio,
+    calcInterest: calcInterest
 }

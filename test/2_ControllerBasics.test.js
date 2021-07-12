@@ -13,9 +13,11 @@ const { constants } = require("./TestConstants")
 const {
     logPosition,
     currentTime,
+    fastForward,
     depositAndBorrow,
     xSUSHIPrice,
-    calcCollateralRatio
+    calcCollateralRatio,
+    calcInterest
 } = require("./TestUtils")
 
 const ERC20_ABI = require("../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json")
@@ -104,7 +106,7 @@ describe.only("Controller Basic tests", function () {
     });
     it("getPosition() returns positive position correctly", async () => {
         // should be publically callable without signer
-        let collateral, debt, lastInterest, tx, time
+        let collateral, debt, lastInterest, time
         [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
         expect(collateral).to.equal(0)
         expect(debt).to.equal(0)
@@ -140,13 +142,57 @@ describe.only("Controller Basic tests", function () {
         colRat = await ControllerInstance.getCurrentCollateralRatio(whaleAddress)
         expect(colRat).to.equal(expectedColRat)
     });
-    // it("getForwardCollateralRatio() returns accurate forward collateral ratio", async () => {
-    //     // should be publically callable without signer
-    // });
-    // it("_getCollateralRatio() should NOT be externally callable", async () => { });
-    // it("calcInterest() returns accurate interest for position", async () => {
-    //     // should be publically callable without signer
-    // });
+    it("getForwardCollateralRatio() returns accurate forward collateral ratio", async () => {
+        // should be publically callable without signer
+        let colRat, expectedColRat, debt
+        await depositAndBorrow(
+            whale,
+            constants.TEST_PARAMS.collateralOne,
+            constants.TEST_PARAMS.borrowedOne,
+            xSushiInstance,
+            ControllerInstance
+        )
+
+        expectedColRat = await calcCollateralRatio(10, 50)
+        debt = BigNumber.from(1000000).mul(50)
+        colRat = await ControllerInstance.getForwardCollateralRatio(whaleAddress, debt)
+        expect(colRat).to.equal(expectedColRat)
+        expectedColRat = await calcCollateralRatio(10, 153)
+        debt = BigNumber.from(1000000).mul(153)
+        colRat = await ControllerInstance.getForwardCollateralRatio(whaleAddress, debt)
+        expect(colRat).to.equal(expectedColRat)
+        expectedColRat = await calcCollateralRatio(10, 3)
+        debt = BigNumber.from(1000000).mul(3)
+        colRat = await ControllerInstance.getForwardCollateralRatio(whaleAddress, debt)
+        expect(colRat).to.equal(expectedColRat)
+    });
+    it("calcInterest() returns accurate interest for position", async () => {
+        // should be publically callable without signer
+        let collateral, debt, interestStart, interestEnd, actualInterest, expectedInterest
+        [collateral, debt, interestStart] = await ControllerInstance.getPosition(whaleAddress);
+
+        expect(collateral).to.equal(0)
+        expect(debt).to.equal(0)
+        expect(interestStart).to.equal(0)
+
+        await depositAndBorrow(
+            whale,
+            constants.TEST_PARAMS.collateralOne,
+            constants.TEST_PARAMS.borrowedOne,
+            xSushiInstance,
+            ControllerInstance
+        );
+
+        [collateral, debt, interestStart] = await ControllerInstance.getPosition(whaleAddress);
+
+        await fastForward(constants.TEST_PARAMS.secondsInAYear)
+
+        actualInterest = await ControllerInstance.calcInterest(whaleAddress)
+        interestEnd = await currentTime()
+        expectedInterest = await calcInterest(debt, interestStart, interestEnd);
+
+        expect(actualInterest).to.equal(expectedInterest)
+    });
     // it("setFeesAndRates() works as expected when called by owner", async () => { });
     // it("setFeesAndRates() reverts when called by non-owner", async () => { });
     // it("setThresholds() works as expected when called by owner", async () => { });

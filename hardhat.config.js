@@ -26,9 +26,9 @@ module.exports = {
   defaultNetwork: "localhost",
 
   networks: {
-    // localhost: {
-    //   url: "http://localhost:8545",
-    // },
+    localhost: {
+      url: "http://localhost:8545",
+    },
     hardhat: {
       forking: {
         url: "https://eth-mainnet.alchemyapi.io/v2/" + process.env.ALCHEMY_API,
