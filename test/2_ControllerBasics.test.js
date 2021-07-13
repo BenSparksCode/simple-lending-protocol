@@ -11,11 +11,9 @@ const { ethers } = require("hardhat");
 
 const { constants } = require("./TestConstants")
 const {
-    logPosition,
     currentTime,
     fastForward,
     depositAndBorrow,
-    xSUSHIPrice,
     calcCollateralRatio,
     calcInterest
 } = require("./TestUtils")
@@ -36,7 +34,7 @@ let xSushiInstance = new ethers.Contract(
     ethers.provider
 )
 
-describe("Controller Basic tests", function () {
+describe.only("Controller Basic tests", function () {
     beforeEach(async () => {
         [owner] = await ethers.getSigners();
         ownerAddress = await owner.getAddress()

@@ -111,8 +111,7 @@ contract Controller is Ownable {
         );
 
         // Adding deposited collateral to position
-        uint256 prevCollateral_ = positions[msg.sender].collateral;
-        positions[msg.sender].collateral = prevCollateral_ + _amount;
+        positions[msg.sender].collateral += _amount;
 
         emit Deposit(msg.sender, _amount);
     }
