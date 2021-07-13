@@ -256,8 +256,56 @@ describe.only("Controller Basic tests", function () {
             constants.PROTOCOL_REVERTS.OWNABLE.notOwner
         );
     });
-    // it("setTokenAddresses() works as expected when called by owner", async () => { });
-    // it("setTokenAddresses() reverts when called by non-owner", async () => { });
-    // it("setSushiAddresses() works as expected when called by owner", async () => { });
-    // it("setSushiAddresses() reverts when called by non-owner", async () => { });
+    it("setTokenAddresses() works as expected when called by owner", async () => {
+        let usdz, xsushi
+
+        usdz = await ControllerInstance.usdzAddress()
+        xsushi = await ControllerInstance.xSushiAddress()
+
+        expect(usdz).to.equal(USDZInstance.address)
+        expect(xsushi).to.equal(constants.CONTRACTS.TOKENS.XSUSHI)
+
+        await ControllerInstance.connect(owner).setTokenAddresses(
+            constants.CONTRACTS.TOKENS.USDC,
+            constants.CONTRACTS.TOKENS.USDC
+        )
+
+        usdz = await ControllerInstance.usdzAddress()
+        xsushi = await ControllerInstance.xSushiAddress()
+
+        expect(usdz).to.equal(constants.CONTRACTS.TOKENS.USDC)
+        expect(xsushi).to.equal(constants.CONTRACTS.TOKENS.USDC)
+    });
+    it("setTokenAddresses() reverts when called by non-owner", async () => {
+        await expect(
+            ControllerInstance.connect(whale).setThresholds(
+                constants.CONTRACTS.TOKENS.USDC,
+                constants.CONTRACTS.TOKENS.USDC
+            )
+        ).to.be.revertedWith(
+            constants.PROTOCOL_REVERTS.OWNABLE.notOwner
+        );
+    });
+    it("setSushiAddresses() works as expected when called by owner", async () => {
+        let router
+
+        router = await ControllerInstance.sushiRouterAddress()
+        expect(router).to.equal(constants.CONTRACTS.SUSHI.ROUTER)
+
+        await ControllerInstance.connect(owner).setSushiAddresses(
+            constants.CONTRACTS.TOKENS.USDC
+        )
+
+        router = await ControllerInstance.sushiRouterAddress()
+        expect(router).to.equal(constants.CONTRACTS.TOKENS.USDC)
+    });
+    it("setSushiAddresses() reverts when called by non-owner", async () => {
+        await expect(
+            ControllerInstance.connect(whale).setSushiAddresses(
+                constants.CONTRACTS.TOKENS.USDC
+            )
+        ).to.be.revertedWith(
+            constants.PROTOCOL_REVERTS.OWNABLE.notOwner
+        );
+    });
 });
