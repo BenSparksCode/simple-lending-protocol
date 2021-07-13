@@ -226,8 +226,36 @@ describe.only("Controller Basic tests", function () {
             constants.PROTOCOL_REVERTS.OWNABLE.notOwner
         );
     });
-    // it("setThresholds() works as expected when called by owner", async () => { });
-    // it("setThresholds() reverts when called by non-owner", async () => { });
+    it("setThresholds() works as expected when called by owner", async () => {
+        let borrowThresh, liqThresh
+
+        borrowThresh = await ControllerInstance.borrowThreshold()
+        liqThresh = await ControllerInstance.liquidationThreshold()
+
+        expect(borrowThresh).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.borrowThreshold)
+        expect(liqThresh).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liquidationThreshold)
+
+        await ControllerInstance.connect(owner).setThresholds(
+            constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR,
+            constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR
+        )
+
+        borrowThresh = await ControllerInstance.borrowThreshold()
+        liqThresh = await ControllerInstance.liquidationThreshold()
+
+        expect(borrowThresh).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR)
+        expect(liqThresh).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR)
+    });
+    it("setThresholds() reverts when called by non-owner", async () => {
+        await expect(
+            ControllerInstance.connect(whale).setThresholds(
+                constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR,
+                constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR
+            )
+        ).to.be.revertedWith(
+            constants.PROTOCOL_REVERTS.OWNABLE.notOwner
+        );
+    });
     // it("setTokenAddresses() works as expected when called by owner", async () => { });
     // it("setTokenAddresses() reverts when called by non-owner", async () => { });
     // it("setSushiAddresses() works as expected when called by owner", async () => { });
