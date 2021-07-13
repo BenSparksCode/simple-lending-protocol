@@ -394,9 +394,10 @@ contract Controller is Ownable {
         liquidationThreshold = _liqThreshold;
     }
 
-    function setUSDZAddress(address _usdz) external onlyOwner() {
+    function setTokenAddresses(address _usdz, address _xsushi) external onlyOwner() {
         require(_usdz != address(0), "zero address not allowed");
         usdzAddress = _usdz;
+        xSushiAddress = _xsushi;
     }
 
     // Sets any SushiSwap protocol contract addresses

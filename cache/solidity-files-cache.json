@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\Ben\\Projects\\simple-lending-protocol\\contracts\\Controller.sol": {
-      "lastModificationDate": 1626078417688,
-      "contentHash": "5e4d4a8b3b6acf09ea16005827a59ab8",
+      "lastModificationDate": 1626157794328,
+      "contentHash": "27e19b304d60967794b457c3d99e0771",
       "sourceName": "contracts/Controller.sol",
       "solcConfig": {
         "version": "0.8.0",

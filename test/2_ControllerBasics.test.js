@@ -68,8 +68,9 @@ describe.only("Controller Basic tests", function () {
             constants.PROTOCOL_PARAMS.USDZ.symbol
         )
 
-        await ControllerInstance.connect(owner).setUSDZAddress(
-            USDZInstance.address
+        await ControllerInstance.connect(owner).setTokenAddresses(
+            USDZInstance.address,
+            constants.CONTRACTS.TOKENS.XSUSHI
         )
     })
 
@@ -193,8 +194,38 @@ describe.only("Controller Basic tests", function () {
 
         expect(actualInterest).to.equal(expectedInterest)
     });
-    // it("setFeesAndRates() works as expected when called by owner", async () => { });
-    // it("setFeesAndRates() reverts when called by non-owner", async () => { });
+    it("setFeesAndRates() works as expected when called by owner", async () => {
+        let liqTotalFee, liqFeeShare, interestRate
+
+        liqTotalFee = await ControllerInstance.liquidationFee()
+        liqFeeShare = await ControllerInstance.liquidatorFeeShare()
+        interestRate = await ControllerInstance.interestRate()
+
+        expect(liqTotalFee).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liqTotalFee)
+        expect(liqFeeShare).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeShare)
+        expect(interestRate).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.interestRate)
+
+        await ControllerInstance.connect(owner).setFeesAndRates(
+            765,
+            432,
+            987
+        )
+
+        liqTotalFee = await ControllerInstance.liquidationFee()
+        liqFeeShare = await ControllerInstance.liquidatorFeeShare()
+        interestRate = await ControllerInstance.interestRate()
+
+        expect(liqTotalFee).to.equal(765)
+        expect(liqFeeShare).to.equal(432)
+        expect(interestRate).to.equal(987)
+    });
+    it("setFeesAndRates() reverts when called by non-owner", async () => {
+        await expect(
+            ControllerInstance.connect(whale).setFeesAndRates(0, 0, 0)
+        ).to.be.revertedWith(
+            constants.PROTOCOL_REVERTS.OWNABLE.notOwner
+        );
+    });
     // it("setThresholds() works as expected when called by owner", async () => { });
     // it("setThresholds() reverts when called by non-owner", async () => { });
     // it("setTokenAddresses() works as expected when called by owner", async () => { });

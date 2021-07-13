@@ -30,6 +30,21 @@ const CONSTANTS = {
             symbol: "USDZ",
         }
     },
+    PROTOCOL_REVERTS: {
+        CONTROLLER: {
+            setFeesAndRates: {
+                liqTotalFee: "liqTotalFee out of range",
+                liqFeeShare: "liqFeeShare out of range",
+                interestRate: "interestRate out of range"
+            }
+        },
+        USDZ: {
+
+        },
+        OWNABLE:{
+            notOwner: "Ownable: caller is not the owner"
+        },
+    },
     CONTRACTS: {
         SUSHI: {
             // https://etherscan.io/address/0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F#code
