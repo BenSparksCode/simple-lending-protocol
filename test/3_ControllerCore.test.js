@@ -77,12 +77,19 @@ describe.only("Controller Core tests", function () {
 
     // DEPOSIT
     describe.only("Deposits", async () => {
-        it("", async () => {});
+        it("Standard deposit works correctly", async () => {});
+        it("Cannot deposit more tokens than user owns", async () => {});
+        it("Cannot deposit more tokens than user has approved", async () => {});
+        it("Multiple consecutive deposits work correctly", async () => {});
     })
 
     // BORROW
     describe.only("Borrows", async () => {
-        it("", async () => {});
+        it("Standard borrow works correctly", async () => {});
+        it("Cannot borrow more than threshold based on collateral", async () => {});
+        it("Cannot borrow zero USDZ", async () => {});
+        it("Borrow changes lastInerest correctly", async () => {});
+        it("Borrow changes Ownable correctly", async () => {});
     })
 
     // WITHDRAW
