@@ -144,7 +144,7 @@ contract Controller is Ownable {
 
         require(
             withdrawable_ >= _amount,
-            "withdraw less of collateral ratio becomes unsafe"
+            "withdraw less - collateral ratio will be unsafe"
         );
 
         positions[msg.sender].collateral = startingCollateral_ - _amount;

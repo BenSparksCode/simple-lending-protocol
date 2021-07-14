@@ -89,12 +89,15 @@ describe.only("Controller Core tests", function () {
         it("Cannot borrow more than threshold based on collateral", async () => {});
         it("Cannot borrow zero USDZ", async () => {});
         it("Borrow changes lastInerest correctly", async () => {});
-        it("Borrow changes Ownable correctly", async () => {});
+        it("Multiple consecutive borrows work correctly", async () => {});
     })
 
     // WITHDRAW
     describe.only("Withdrawals", async () => {
-        it("", async () => {});
+        it("Standard withdraw works correctly", async () => {});
+        it("Can withdraw all collateral if zero debt", async () => {});
+        it("Cannot withdraw more than up to safety ratio", async () => {});
+        it("Multiple consecutive withdraws work correctly", async () => {});
     })
 
     // REPAY
@@ -104,6 +107,10 @@ describe.only("Controller Core tests", function () {
 
     // EVENTS
     describe.only("Controller Events", async () => {
-        it("", async () => {});
+        it("Deposit event emits correctly", async () => {});
+        it("Borrow event emits correctly", async () => {});
+        it("Withdraw event emits correctly", async () => {});
+        it("Repay event emits correctly", async () => {});
+        it("Liquidation event emits correctly", async () => {});
     })
 });
