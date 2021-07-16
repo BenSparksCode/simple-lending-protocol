@@ -102,7 +102,12 @@ describe.only("Controller Core tests", function () {
 
     // REPAY
     describe.only("Repayments", async () => {
-        it("", async () => {});
+        it("Repay works for partial repayments of debt", async () => {});
+        it("Repay works for full repayments of debt", async () => {});
+        it("Cannot repay zero", async () => {});
+        it("Over repaying will fully repay and refund rest", async () => {});
+        it("Fully repaid account will not accrue any interest", async () => {});
+        it("Multiple consecutive partial repayments work correctly", async () => {});
     })
 
     // EVENTS
