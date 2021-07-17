@@ -79,6 +79,12 @@ const toJSNum = (bigNum) => {
     return parseInt(bigNum.toString())
 }
 
+const burnTokenBalance = async (signer, tokenContract) => {
+    const addr = await signer.getAddress()
+    const bal = await tokenContract.balanceOf(addr)
+    tokenContract.connect(signer).transfer("0x000000000000000000000000000000000000dEaD", bal)
+}
+
 
 module.exports = {
     logPosition: logPosition,
@@ -87,5 +93,6 @@ module.exports = {
     depositAndBorrow: depositAndBorrow,
     xSUSHIPrice: xSUSHIPrice,
     calcCollateralRatio: calcCollateralRatio,
-    calcInterest: calcInterest
+    calcInterest: calcInterest,
+    burnTokenBalance: burnTokenBalance,
 }
