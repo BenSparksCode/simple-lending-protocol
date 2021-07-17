@@ -1,5 +1,5 @@
 {
-  "name": "hardhat-project",
+  "name": "simple-lending-protocol",
   "scripts": {
     "chain": "hardhat node",
     "test": "hardhat test",

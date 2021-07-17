@@ -24,7 +24,6 @@ module.exports = {
     endabled: true
   },
   defaultNetwork: "localhost",
-
   networks: {
     localhost: {
       url: "http://localhost:8545",
