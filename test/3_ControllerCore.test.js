@@ -37,7 +37,7 @@ let xSushiInstance = new ethers.Contract(
     ethers.provider
 )
 
-describe.only("Controller Core tests", function () {
+describe("Controller Core tests", function () {
     beforeEach(async () => {
         [owner] = await ethers.getSigners();
         ownerAddress = await owner.getAddress()
@@ -76,7 +76,7 @@ describe.only("Controller Core tests", function () {
     })
 
     // DEPOSIT
-    describe.only("Deposits", async () => {
+    describe("Deposits", async () => {
         it("Standard deposit works correctly", async () => {});
         it("Cannot deposit more tokens than user owns", async () => {});
         it("Cannot deposit more tokens than user has approved", async () => {});
@@ -84,7 +84,7 @@ describe.only("Controller Core tests", function () {
     })
 
     // BORROW
-    describe.only("Borrows", async () => {
+    describe("Borrows", async () => {
         it("Standard borrow works correctly", async () => {});
         it("Cannot borrow more than threshold based on collateral", async () => {});
         it("Cannot borrow zero USDZ", async () => {});
@@ -93,7 +93,7 @@ describe.only("Controller Core tests", function () {
     })
 
     // WITHDRAW
-    describe.only("Withdrawals", async () => {
+    describe("Withdrawals", async () => {
         it("Standard withdraw works correctly", async () => {});
         it("Can withdraw all collateral if zero debt", async () => {});
         it("Cannot withdraw more than up to safety ratio", async () => {});
@@ -101,7 +101,7 @@ describe.only("Controller Core tests", function () {
     })
 
     // REPAY
-    describe.only("Repayments", async () => {
+    describe("Repayments", async () => {
         it("Repay works for partial repayments of debt", async () => {});
         it("Repay works for full repayments of debt", async () => {});
         it("Cannot repay zero", async () => {});
@@ -111,7 +111,7 @@ describe.only("Controller Core tests", function () {
     })
 
     // EVENTS
-    describe.only("Controller Events", async () => {
+    describe("Controller Events", async () => {
         it("Deposit event emits correctly", async () => {});
         it("Borrow event emits correctly", async () => {});
         it("Withdraw event emits correctly", async () => {});

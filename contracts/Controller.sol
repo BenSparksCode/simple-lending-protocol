@@ -118,18 +118,13 @@ contract Controller is Ownable {
 
     // User withdraws xSUSHI collateral if safety ratio stays > 200%
     function withdraw(uint256 _amount) public {
-        uint256 startingCollateral_ = positions[msg.sender].collateral;
+        Position storage pos = positions[msg.sender];
+        require(pos.collateral >= _amount, "not enough collateral in account");
 
-        require(
-            startingCollateral_ >= _amount,
-            "not enough collateral in account"
-        );
-
-        // TODO refactor to forward ColRat for memory
         uint256 interest_ = calcInterest(msg.sender);
 
-        positions[msg.sender].debt += interest_;
-        positions[msg.sender].lastInterest = block.timestamp;
+        pos.debt += interest_;
+        pos.lastInterest = block.timestamp;
 
         uint256 colRatio = getCurrentCollateralRatio(msg.sender);
 
@@ -140,14 +135,14 @@ contract Controller is Ownable {
 
         uint256 withdrawable_ = ((colRatio -
             (borrowThreshold / SCALING_FACTOR)) / type(uint256).max) *
-            startingCollateral_;
+            pos.collateral;
 
         require(
             withdrawable_ >= _amount,
             "withdraw less - collateral ratio will be unsafe"
         );
 
-        positions[msg.sender].collateral = startingCollateral_ - _amount;
+        pos.collateral -= _amount;
 
         require(
             IERC20(xSushiAddress).transfer(msg.sender, _amount),
@@ -160,6 +155,7 @@ contract Controller is Ownable {
     // User mints and borrows USDZ against collateral
     function borrow(uint256 _amount) public {
         require(_amount > 0, "can't borrow 0");
+        Position storage pos = positions[msg.sender];
 
         uint256 interest_ = calcInterest(msg.sender);
 
@@ -167,22 +163,22 @@ contract Controller is Ownable {
         require(
             getForwardCollateralRatio(
                 msg.sender,
-                positions[msg.sender].debt + interest_ + _amount
+                pos.debt + interest_ + _amount
             ) >= borrowThreshold,
             "not enough collateral to borrow that much"
         );
 
         // add interest and new debt to position
-        positions[msg.sender].debt += (_amount + interest_);
-        positions[msg.sender].lastInterest = block.timestamp;
+        pos.debt += (_amount + interest_);
+        pos.lastInterest = block.timestamp;
 
         IUSDZ(usdzAddress).mint(msg.sender, _amount);
 
         emit Borrow(
             msg.sender,
             _amount,
-            positions[msg.sender].debt,
-            positions[msg.sender].collateral
+            pos.debt,
+            pos.collateral
         );
     }
 
@@ -393,7 +389,10 @@ contract Controller is Ownable {
         liquidationThreshold = _liqThreshold;
     }
 
-    function setTokenAddresses(address _usdz, address _xsushi) external onlyOwner() {
+    function setTokenAddresses(address _usdz, address _xsushi)
+        external
+        onlyOwner()
+    {
         require(_usdz != address(0), "zero address not allowed");
         usdzAddress = _usdz;
         xSushiAddress = _xsushi;
