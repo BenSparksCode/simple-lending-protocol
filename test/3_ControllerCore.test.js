@@ -18,12 +18,14 @@ const {
     depositAndBorrow,
     xSUSHIPrice,
     calcCollateralRatio,
-    calcInterest
+    calcInterest,
+    burnTokenBalance
 } = require("./TestUtils")
 
 const ERC20_ABI = require("../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json")
 
 let whale, whaleAddress
+let alice, aliceAddress
 let owner, ownerAddress
 
 let USDZContract
@@ -39,8 +41,9 @@ let xSushiInstance = new ethers.Contract(
 
 describe("Controller Core tests", function () {
     beforeEach(async () => {
-        [owner] = await ethers.getSigners();
+        [owner, alice] = await ethers.getSigners();
         ownerAddress = await owner.getAddress()
+        aliceAddress = await alice.getAddress()
 
         await hre.network.provider.request({
             method: "hardhat_impersonateAccount",
@@ -76,46 +79,83 @@ describe("Controller Core tests", function () {
     })
 
     // DEPOSIT
-    describe("Deposits", async () => {
-        it("Standard deposit works correctly", async () => {});
-        it("Cannot deposit more tokens than user owns", async () => {});
-        it("Cannot deposit more tokens than user has approved", async () => {});
-        it("Multiple consecutive deposits work correctly", async () => {});
+    describe.only("Deposits", async () => {
+        it("Standard deposit works correctly", async () => {
+            // should be publically callable without signer
+            let collateral, debt, lastInterest, time
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(collateral).to.equal(0)
+            expect(debt).to.equal(0)
+            expect(lastInterest).to.equal(0)
+
+            await xSushiInstance.connect(whale).approve(
+                ControllerInstance.address,
+                constants.TEST_PARAMS.collateralOne
+            )
+            await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne);
+
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+
+            expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
+            expect(debt).to.equal(0)
+            expect(lastInterest).to.equal(0)
+
+        });
+        it("Cannot deposit more tokens than user owns", async () => {
+            await burnTokenBalance(alice, xSushiInstance)
+            let bal = await xSushiInstance.balanceOf(aliceAddress)
+            // send alice some xSUSHI
+            await xSushiInstance.connect(whale).transfer(
+                aliceAddress,
+                constants.TEST_PARAMS.collateralOne
+            )
+
+            bal = await xSushiInstance.balanceOf(aliceAddress)
+            await expect(bal).to.equal(constants.TEST_PARAMS.collateralOne)
+
+            await expect(
+                ControllerInstance.connect(alice).deposit(constants.TEST_PARAMS.collateralOne.add(1))
+            ).to.be.revertedWith(
+                "ERC20: transfer amount exceeds balance"
+            );
+        });
+        it("Cannot deposit more tokens than user has approved", async () => { });
+        it("Multiple consecutive deposits work correctly", async () => { });
     })
 
     // BORROW
     describe("Borrows", async () => {
-        it("Standard borrow works correctly", async () => {});
-        it("Cannot borrow more than threshold based on collateral", async () => {});
-        it("Cannot borrow zero USDZ", async () => {});
-        it("Borrow changes lastInerest correctly", async () => {});
-        it("Multiple consecutive borrows work correctly", async () => {});
+        it("Standard borrow works correctly", async () => { });
+        it("Cannot borrow more than threshold based on collateral", async () => { });
+        it("Cannot borrow zero USDZ", async () => { });
+        it("Borrow changes lastInerest correctly", async () => { });
+        it("Multiple consecutive borrows work correctly", async () => { });
     })
 
     // WITHDRAW
     describe("Withdrawals", async () => {
-        it("Standard withdraw works correctly", async () => {});
-        it("Can withdraw all collateral if zero debt", async () => {});
-        it("Cannot withdraw more than up to safety ratio", async () => {});
-        it("Multiple consecutive withdraws work correctly", async () => {});
+        it("Standard withdraw works correctly", async () => { });
+        it("Can withdraw all collateral if zero debt", async () => { });
+        it("Cannot withdraw more than up to safety ratio", async () => { });
+        it("Multiple consecutive withdraws work correctly", async () => { });
     })
 
     // REPAY
     describe("Repayments", async () => {
-        it("Repay works for partial repayments of debt", async () => {});
-        it("Repay works for full repayments of debt", async () => {});
-        it("Cannot repay zero", async () => {});
-        it("Over repaying will fully repay and refund rest", async () => {});
-        it("Fully repaid account will not accrue any interest", async () => {});
-        it("Multiple consecutive partial repayments work correctly", async () => {});
+        it("Repay works for partial repayments of debt", async () => { });
+        it("Repay works for full repayments of debt", async () => { });
+        it("Cannot repay zero", async () => { });
+        it("Over repaying will fully repay and refund rest", async () => { });
+        it("Fully repaid account will not accrue any interest", async () => { });
+        it("Multiple consecutive partial repayments work correctly", async () => { });
     })
 
     // EVENTS
     describe("Controller Events", async () => {
-        it("Deposit event emits correctly", async () => {});
-        it("Borrow event emits correctly", async () => {});
-        it("Withdraw event emits correctly", async () => {});
-        it("Repay event emits correctly", async () => {});
-        it("Liquidation event emits correctly", async () => {});
+        it("Deposit event emits correctly", async () => { });
+        it("Borrow event emits correctly", async () => { });
+        it("Withdraw event emits correctly", async () => { });
+        it("Repay event emits correctly", async () => { });
+        it("Liquidation event emits correctly", async () => { });
     })
 });
