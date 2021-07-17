@@ -116,11 +116,47 @@ describe("Controller Core tests", function () {
             await expect(
                 ControllerInstance.connect(alice).deposit(constants.TEST_PARAMS.collateralOne.add(1))
             ).to.be.revertedWith(
-                "ERC20: transfer amount exceeds balance"
+                constants.PROTOCOL_REVERTS.ERC20.transferTooMuch
             );
         });
-        it("Cannot deposit more tokens than user has approved", async () => { });
-        it("Multiple consecutive deposits work correctly", async () => { });
+        it("Cannot deposit more tokens than user has approved", async () => {
+            await expect(
+                ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne)
+            ).to.be.revertedWith(
+                constants.PROTOCOL_REVERTS.ERC20.notEnoughApproved
+            );
+        });
+        it("Multiple consecutive deposits work correctly", async () => {
+            let collateral, debt, lastInterest
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(collateral).to.equal(0)
+            expect(debt).to.equal(0)
+            expect(lastInterest).to.equal(0)
+
+            await xSushiInstance.connect(whale).approve(
+                ControllerInstance.address,
+                constants.TEST_PARAMS.collateralOne
+            )
+            await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne);
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne.mul(1))
+
+            await xSushiInstance.connect(whale).approve(
+                ControllerInstance.address,
+                constants.TEST_PARAMS.collateralOne
+            )
+            await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne);
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne.mul(2))
+
+            await xSushiInstance.connect(whale).approve(
+                ControllerInstance.address,
+                constants.TEST_PARAMS.collateralOne
+            )
+            await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne);
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne.mul(3))
+        });
     })
 
     // BORROW

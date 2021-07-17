@@ -44,6 +44,10 @@ const CONSTANTS = {
         OWNABLE:{
             notOwner: "Ownable: caller is not the owner"
         },
+        ERC20:{
+            transferTooMuch: "ERC20: transfer amount exceeds balance",
+            notEnoughApproved: "ERC20: transfer amount exceeds allowance",
+        }
     },
     CONTRACTS: {
         SUSHI: {
