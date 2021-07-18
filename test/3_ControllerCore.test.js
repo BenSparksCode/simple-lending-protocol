@@ -18,6 +18,7 @@ const {
     depositAndBorrow,
     xSUSHIPrice,
     calcCollateralRatio,
+    calcBorrowedGivenRatio,
     calcInterest,
     burnTokenBalance
 } = require("./TestUtils")
@@ -39,7 +40,7 @@ let xSushiInstance = new ethers.Contract(
     ethers.provider
 )
 
-describe("Controller Core tests", function () {
+describe.only("Controller Core tests", function () {
     beforeEach(async () => {
         [owner, alice] = await ethers.getSigners();
         ownerAddress = await owner.getAddress()
@@ -79,7 +80,7 @@ describe("Controller Core tests", function () {
     })
 
     // DEPOSIT
-    describe.only("Deposits", async () => {
+    describe("Deposits", async () => {
         it("Standard deposit works correctly", async () => {
             // should be publically callable without signer
             let collateral, debt, lastInterest, time
@@ -160,9 +161,81 @@ describe("Controller Core tests", function () {
     })
 
     // BORROW
-    describe("Borrows", async () => {
-        it("Standard borrow works correctly", async () => { });
-        it("Cannot borrow more than threshold based on collateral", async () => { });
+    describe.only("Borrows", async () => {
+        it("Standard borrow works correctly", async () => {
+            let collateral, debt, lastInterest, time
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(collateral).to.equal(0)
+            expect(debt).to.equal(0)
+            expect(lastInterest).to.equal(0)
+
+            await xSushiInstance.connect(whale).approve(
+                ControllerInstance.address,
+                constants.TEST_PARAMS.collateralOne
+            )
+
+            await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne)
+            await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne)
+
+            time = await currentTime();
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
+
+            expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
+            expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne)
+            expect(lastInterest).to.equal(time)
+        });
+        it("Can borrow exactly to threshold based on collateral", async () => {
+            let collateral, debt, interestStart, maxBorrowable, time
+            [collateral, debt, interestStart] = await ControllerInstance.getPosition(whaleAddress);
+
+            expect(collateral).to.equal(0)
+            expect(debt).to.equal(0)
+            expect(interestStart).to.equal(0)
+
+            // Deposit 10 xSUSHI as collateral
+            await xSushiInstance.connect(whale).approve(
+                ControllerInstance.address,
+                constants.TEST_PARAMS.collateralOne
+            )
+            await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne);
+
+            // Calc how much USDZ we are allowed to borrow
+            maxBorrowable = await calcBorrowedGivenRatio(10, constants.PROTOCOL_PARAMS.CONTROLLER.borrowThreshold)
+
+            await ControllerInstance.connect(whale).borrow(maxBorrowable);
+
+            time = await currentTime();
+            [collateral, debt, interestStart] = await ControllerInstance.getPosition(whaleAddress);
+
+            expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
+            expect(debt).to.equal(maxBorrowable)
+            expect(interestStart).to.equal(time)
+        })
+        it("Cannot borrow more than threshold based on collateral", async () => {
+            let collateral, debt, interestStart, maxBorrowable, colRat
+            [collateral, debt, interestStart] = await ControllerInstance.getPosition(whaleAddress);
+
+            expect(collateral).to.equal(0)
+            expect(debt).to.equal(0)
+            expect(interestStart).to.equal(0)
+
+            // Deposit 10 xSUSHI as collateral
+            await xSushiInstance.connect(whale).approve(
+                ControllerInstance.address,
+                constants.TEST_PARAMS.collateralOne
+            )
+            await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne);
+
+            // Calc how much USDZ we are allowed to borrow
+            maxBorrowable = await calcBorrowedGivenRatio(10, constants.PROTOCOL_PARAMS.CONTROLLER.borrowThreshold)
+            colRat = await ControllerInstance.getForwardCollateralRatio(whaleAddress, maxBorrowable.add(1))
+
+            await expect(
+                ControllerInstance.connect(whale).borrow(maxBorrowable.add(1))
+            ).to.be.revertedWith(
+                constants.PROTOCOL_REVERTS.CONTROLLER.borrow.notEnoughCol
+            );
+        });
         it("Cannot borrow zero USDZ", async () => { });
         it("Borrow changes lastInerest correctly", async () => { });
         it("Multiple consecutive borrows work correctly", async () => { });

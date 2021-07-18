@@ -34,7 +34,7 @@ let xSushiInstance = new ethers.Contract(
     ethers.provider
 )
 
-describe.only("Controller Basic tests", function () {
+describe("Controller Basic tests", function () {
     beforeEach(async () => {
         [owner] = await ethers.getSigners();
         ownerAddress = await owner.getAddress()

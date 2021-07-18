@@ -36,6 +36,10 @@ const CONSTANTS = {
                 liqTotalFee: "liqTotalFee out of range",
                 liqFeeShare: "liqFeeShare out of range",
                 interestRate: "interestRate out of range"
+            },
+            borrow: {
+                cantBorrowZero: "can't borrow 0",
+                notEnoughCol: "not enough collateral to borrow that much",
             }
         },
         USDZ: {
