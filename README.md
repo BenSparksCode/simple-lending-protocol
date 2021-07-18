@@ -69,24 +69,13 @@ MVP version, for educational purposes. Not intended for real financial use.
 
 ## Protocol Plan V2
 
-Some form of governance token and DAO will be established to develop the protocol after a public version is ready and deployed.
-
-- Governance:
-  - There will be a completely valueless governance token for the protocol. Ticker to be decided. GOV used as a placeholder. 
-  - GOV can be locked for different periods, in exchange for veGOV (shout out to [Curve](https://curve.readthedocs.io/dao-vecrv.html)).
-  - GOV lockers get more veGOV, the longer they lock up the GOV for.
-  - 1 veGOV = 1 vote in governance issues.
-  - Protocol earnings are directed to 2 different accounts: 70% operating funds, and 30% staking rewards. veGOV tokens represent a share of the staking rewards pool.
-  - veCRV holders also vote on how the operating funds are used.
-- GOV Token Distribution:
-  - 10% founding team allocation, vested for 2 years
-  - 25% of supply airdropped to DeFi users
-  - 30% operating fund, linear unlocks for 2 years
-  - 35% liquidity mining rewards for 2 years
-- Protocol Launch Caps:
-  - To prevent whales using large positions to break the USDZ-dollar peg (a potential attack vector), some caps will be in place at launch, and may be changed by protocol governance later.
-  - Protocol collateral cap: $10 million in xSUSHI.
-  - Protocol borrow cap: $2 million in USDZ.
+- Gasless function calls
+- More yield-bearing collateral assets
+- Gov token that owns treasury, directs development of protocol
+- Airdrop of gov token
+- Borrowing earns gov tokens
+- Transferring earns gov tokens
+- Liquidating earns gov tokens
 
 ## Resources
 
