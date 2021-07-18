@@ -9,6 +9,13 @@ import "./utils/ABDKMath64x64.sol";
 import "./interfaces/IUniswapV2Router02.sol";
 import "./IUSDZ.sol";
 
+// TODO
+// - add nonReentrant
+// - check best practices for ABDKMath64x64
+// - implement liquidation
+// - implement swapper
+// - standardize revert msgs
+
 contract Controller is Ownable {
     // using ABDKMath64x64 for int128;
 
@@ -293,8 +300,8 @@ contract Controller is Ownable {
         )[2];
 
         // col. ratio = collateral USDC value / debt USDC value
-        // E.g. 2:1 will return 2 000 000 (2000000/10000=200) for 200%
-        return (collateralValue_ * SCALING_FACTOR * 100) / (_totalDebt);
+        // E.g. 2:1 will return 20 000 (20 000/10 000=2) for 200%
+        return (collateralValue_ * SCALING_FACTOR) / (_totalDebt);
     }
 
     // Calculates interest on position of given address
