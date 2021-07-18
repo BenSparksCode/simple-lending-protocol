@@ -34,7 +34,7 @@ let xSushiInstance = new ethers.Contract(
     ethers.provider
 )
 
-describe("Controller Basic tests", function () {
+describe.only("Controller Basic tests", function () {
     beforeEach(async () => {
         [owner] = await ethers.getSigners();
         ownerAddress = await owner.getAddress()
@@ -117,13 +117,13 @@ describe("Controller Basic tests", function () {
         )
 
         await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne)
-        await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne.mul(5))
+        await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne)
 
         time = await currentTime();
         [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
 
         expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
-        expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne.mul(5))
+        expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne)
         expect(lastInterest).to.equal(time)
     });
     it("getCurrentCollateralRatio() returns accurate current collateral ratio", async () => {
