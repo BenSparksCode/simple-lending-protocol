@@ -7,7 +7,8 @@ const CONSTANTS = {
         borrowedOne: BigNumber.from("1000000").mul(10),        // 10 USDC
         FPToDecimal: BigNumber.from(2).pow(64), 
         secondsInAYear: 31556952,
-        e: 2.71828
+        e: 2.71828,
+        timeTolerance: 1
     },
     PROTOCOL_PARAMS: {
         CONTROLLER: {

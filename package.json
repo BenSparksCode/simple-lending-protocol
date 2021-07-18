@@ -3,6 +3,7 @@
   "scripts": {
     "chain": "hardhat node",
     "test": "hardhat test",
+    "test:parallel": "mocha --require hardhat/register --recursive --parallel --timeout 10000 --exit",
     "compile": "hardhat compile",
     "deploy": "hardhat run scripts/deploy.js",
     "accounts": "hardhat accounts",
@@ -20,6 +21,7 @@
     "ethers": "^5.1.4",
     "hardhat": "^2.4.0",
     "hardhat-contract-sizer": "^2.0.3",
-    "hardhat-gas-reporter": "^1.0.4"
+    "hardhat-gas-reporter": "^1.0.4",
+    "mocha": "^9.0.2"
   }
 }

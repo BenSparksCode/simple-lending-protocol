@@ -40,7 +40,7 @@ let xSushiInstance = new ethers.Contract(
     ethers.provider
 )
 
-describe.only("Controller Core tests", function () {
+describe("Controller Core tests", function () {
     beforeEach(async () => {
         [owner, alice] = await ethers.getSigners();
         ownerAddress = await owner.getAddress()
@@ -83,7 +83,7 @@ describe.only("Controller Core tests", function () {
     describe("Deposits", async () => {
         it("Standard deposit works correctly", async () => {
             // should be publically callable without signer
-            let collateral, debt, lastInterest, time
+            let collateral, debt, lastInterest
             [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             expect(collateral).to.equal(0)
             expect(debt).to.equal(0)
@@ -161,7 +161,7 @@ describe.only("Controller Core tests", function () {
     })
 
     // BORROW
-    describe.only("Borrows", async () => {
+    describe("Borrows", async () => {
         it("Standard borrow works correctly", async () => {
             let collateral, debt, lastInterest, time
             [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
@@ -182,7 +182,7 @@ describe.only("Controller Core tests", function () {
 
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
             expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne)
-            expect(lastInterest).to.equal(time)
+            expect(lastInterest).to.be.closeTo(BigNumber.from(time), constants.TEST_PARAMS.timeTolerance);
         });
         it("Can borrow exactly to threshold based on collateral", async () => {
             let collateral, debt, interestStart, maxBorrowable, time
@@ -209,7 +209,7 @@ describe.only("Controller Core tests", function () {
 
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
             expect(debt).to.equal(maxBorrowable)
-            expect(interestStart).to.equal(time)
+            expect(interestStart).to.be.closeTo(BigNumber.from(time), constants.TEST_PARAMS.timeTolerance);
         })
         it("Cannot borrow more than threshold based on collateral", async () => {
             let collateral, debt, interestStart, maxBorrowable, colRat

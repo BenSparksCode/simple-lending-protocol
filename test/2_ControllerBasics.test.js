@@ -124,7 +124,7 @@ describe("Controller Basic tests", function () {
 
         expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
         expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne)
-        expect(lastInterest).to.equal(time)
+        expect(lastInterest).to.be.closeTo(BigNumber.from(time), constants.TEST_PARAMS.timeTolerance);
     });
     it("getCurrentCollateralRatio() returns accurate current collateral ratio", async () => {
         // should be publically callable without signer
