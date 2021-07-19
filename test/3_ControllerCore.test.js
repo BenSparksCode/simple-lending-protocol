@@ -20,6 +20,7 @@ const {
     calcCollateralRatio,
     calcBorrowedGivenRatio,
     calcInterest,
+    calcWithdrawable,
     burnTokenBalance
 } = require("./TestUtils")
 
@@ -265,13 +266,13 @@ describe("Controller Core tests", function () {
             time = await currentTime();
             [collateral, debt, interestStart] = await ControllerInstance.getPosition(whaleAddress);
             expect(interestStart).to.be.closeTo(BigNumber.from(time), constants.TEST_PARAMS.timeTolerance);
-            
+
             await fastForward(5000)
             await ControllerInstance.connect(whale).borrow(1);
             [collateral, debt, interestStart] = await ControllerInstance.getPosition(whaleAddress);
-            expect(interestStart).to.be.closeTo(BigNumber.from(time+5000), constants.TEST_PARAMS.timeTolerance);
+            expect(interestStart).to.be.closeTo(BigNumber.from(time + 5000), constants.TEST_PARAMS.timeTolerance);
         });
-        it("Multiple consecutive borrows work correctly", async () => { 
+        it("Multiple consecutive borrows work correctly", async () => {
             let collateral, debt, lastInterest, borrowAmount;
             borrowAmount = constants.TEST_PARAMS.borrowedOne.div(3);
             [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
@@ -304,7 +305,32 @@ describe("Controller Core tests", function () {
 
     // WITHDRAW
     describe("Withdrawals", async () => {
-        it("Standard withdraw works correctly", async () => { });
+        beforeEach(async () => {
+            await xSushiInstance.connect(whale).approve(
+                ControllerInstance.address,
+                constants.TEST_PARAMS.collateralOne
+            )
+            await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne)
+        })
+
+        it("Standard withdraw works correctly", async () => {
+            let withdrawable, withdrawAmount, cBal1, wBal1, cBal2, wBal2
+            cBal1 = await xSushiInstance.balanceOf(ControllerInstance.address)
+            wBal1 = await xSushiInstance.balanceOf(whaleAddress)
+
+            await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne);
+            withdrawable = await calcWithdrawable(whaleAddress, ControllerInstance);
+            withdrawAmount = constants.TEST_PARAMS.collateralOne.div(2)
+
+            expect(withdrawable.gt(withdrawAmount))
+            // withdraw half of withdrawable
+            await ControllerInstance.connect(whale).withdraw(withdrawAmount);
+            cBal2 = await xSushiInstance.balanceOf(ControllerInstance.address)
+            wBal2 = await xSushiInstance.balanceOf(whaleAddress)
+
+            expect(cBal2).to.equal(cBal1.sub(withdrawAmount))
+            expect(wBal2).to.equal(wBal1.add(withdrawAmount))
+        });
         it("Can withdraw all collateral if zero debt", async () => { });
         it("Cannot withdraw more than up to safety ratio", async () => { });
         it("Multiple consecutive withdraws work correctly", async () => { });
