@@ -29,12 +29,11 @@ const fastForward = async (seconds) => {
 const logPosition = async (name, address, ControllerInstance) => {
     const pos = await ControllerInstance.getPosition(address)
     const colRat = await ControllerInstance.getCurrentCollateralRatio(address)
-
     console.log("--------------------------");
     console.log("Name: \t\t\t", name, '(' + address.substring(0, 6) + "...)")
     console.log("collateral: \t\t", pos[0].div(ethers.utils.parseUnits("1", "ether")).toString(), "xSUSHI");
     console.log("debt: \t\t\t", pos[1].div(1000000).toString(), "USDZ");
-    console.log("collateral ratio: \t", colRat.div(SCALE).toString() + '%');
+    console.log("collateral ratio: \t", colRat.div(SCALE/100).toString() + '%');
     console.log("last interest time: \t", pos[2].toString());
     console.log("--------------------------");
 }
@@ -72,7 +71,7 @@ const calcBorrowedGivenRatio = async (numXSushi, targetColRatio) => {
     // console.log(xsushiValue.toString());
     return (
         xsushiValue
-            .div(targetColRatio/constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR)
+            .div(targetColRatio / constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR)
     )
 }
 
@@ -81,6 +80,19 @@ const calcInterest = async (debt, startTime, endTime) => {
     const duration = (endTime - toJSNum(startTime)) / constants.TEST_PARAMS.secondsInAYear
     const interest = (toJSNum(debt) * Math.pow(constants.TEST_PARAMS.e, (i * duration))) - toJSNum(debt)
     return Math.floor(interest)
+}
+
+const calcWithdrawable = async (address, ControllerInstance) => {
+    // returns BigNumber Int assuming 10^18 decimals (for xSUSHI)
+    let collateral, debt, interestStart, currColRat, borrowThresh
+    currColRat = await ControllerInstance.getCurrentCollateralRatio(address);
+    [collateral, debt, interestStart] = await ControllerInstance.getPosition(address);
+    currColRat = BigNumber.from(currColRat)
+    collateral = BigNumber.from(collateral)
+    borrowThresh = BigNumber.from(constants.PROTOCOL_PARAMS.CONTROLLER.borrowThreshold)
+
+    // (collateral.div(currColRat)).mul(currColRat.sub(borrowThresh))
+    return (collateral.div(currColRat)).mul(currColRat.sub(borrowThresh))
 }
 
 const toJSNum = (bigNum) => {
@@ -103,5 +115,6 @@ module.exports = {
     calcCollateralRatio: calcCollateralRatio,
     calcBorrowedGivenRatio: calcBorrowedGivenRatio,
     calcInterest: calcInterest,
+    calcWithdrawable: calcWithdrawable,
     burnTokenBalance: burnTokenBalance,
 }
