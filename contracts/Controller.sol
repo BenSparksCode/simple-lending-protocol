@@ -9,6 +9,8 @@ import "./utils/ABDKMath64x64.sol";
 import "./interfaces/IUniswapV2Router02.sol";
 import "./IUSDZ.sol";
 
+import "hardhat/console.sol";
+
 // TODO
 // - add nonReentrant
 // - check best practices for ABDKMath64x64
@@ -140,14 +142,9 @@ contract Controller is Ownable {
             "collateral ratio is <= borrow threshold"
         );
 
-        uint256 withdrawable_ = ((colRatio -
-            (borrowThreshold / SCALING_FACTOR)) / type(uint256).max) *
-            pos.collateral;
+        uint256 withdrawable_ = (pos.collateral / colRatio) * (colRatio - borrowThreshold);
 
-        require(
-            withdrawable_ >= _amount,
-            "withdraw less - collateral ratio will be unsafe"
-        );
+        require(withdrawable_ >= _amount, "amount unsafe to withdraw");
 
         pos.collateral -= _amount;
 
@@ -181,12 +178,7 @@ contract Controller is Ownable {
 
         IUSDZ(usdzAddress).mint(msg.sender, _amount);
 
-        emit Borrow(
-            msg.sender,
-            _amount,
-            pos.debt,
-            pos.collateral
-        );
+        emit Borrow(msg.sender, _amount, pos.debt, pos.collateral);
     }
 
     // User repays any debt in USDZ
