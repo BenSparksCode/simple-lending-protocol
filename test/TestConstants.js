@@ -8,7 +8,7 @@ const CONSTANTS = {
         FPToDecimal: BigNumber.from(2).pow(64), 
         secondsInAYear: 31556952,
         e: 2.71828,
-        timeTolerance: 1
+        timeTolerance: 2
     },
     PROTOCOL_PARAMS: {
         CONTROLLER: {
