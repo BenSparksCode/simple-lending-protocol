@@ -348,7 +348,7 @@ describe("Controller Core tests", function () {
 
     // EVENTS
     describe("Controller Events", async () => {
-        it.only("Deposit event emits correctly", async () => {
+        it("Deposit event emits correctly", async () => {
             await xSushiInstance.connect(whale).approve(
                 ControllerInstance.address,
                 constants.TEST_PARAMS.collateralOne
@@ -358,7 +358,20 @@ describe("Controller Core tests", function () {
                 .to.emit(ControllerInstance, 'Deposit')
                 .withArgs(whaleAddress, constants.TEST_PARAMS.collateralOne);
         });
-        it("Borrow event emits correctly", async () => { });
+        it.only("Borrow event emits correctly", async () => {
+            let collateral, debt, lastInterest;
+            await xSushiInstance.connect(whale).approve(
+                ControllerInstance.address,
+                constants.TEST_PARAMS.collateralOne
+            );
+            await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne);
+
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+
+            await expect(await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne))
+                .to.emit(ControllerInstance, 'Borrow')
+                .withArgs(whaleAddress, constants.TEST_PARAMS.borrowedOne, debt, collateral);
+        });
         it("Withdraw event emits correctly", async () => { });
         it("Repay event emits correctly", async () => { });
         it("Liquidation event emits correctly", async () => { });
