@@ -77,7 +77,7 @@ const CONSTANTS = {
     WALLETS: {
         // https://etherscan.io/address/0xf977814e90da44bfa03b6295a0616a897441acec
         // Binance 8 Wallet
-        XSUSHI_WHALE: "0xf977814e90da44bfa03b6295a0616a897441acec",
+        XSUSHI_WHALE: "0xF977814e90dA44bFA03b6295A0616a897441aceC",
     }
 }
 

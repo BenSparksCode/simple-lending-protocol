@@ -348,7 +348,16 @@ describe("Controller Core tests", function () {
 
     // EVENTS
     describe("Controller Events", async () => {
-        it("Deposit event emits correctly", async () => { });
+        it.only("Deposit event emits correctly", async () => {
+            await xSushiInstance.connect(whale).approve(
+                ControllerInstance.address,
+                constants.TEST_PARAMS.collateralOne
+            )
+
+            await expect(ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne))
+                .to.emit(ControllerInstance, 'Deposit')
+                .withArgs(whaleAddress, constants.TEST_PARAMS.collateralOne);
+        });
         it("Borrow event emits correctly", async () => { });
         it("Withdraw event emits correctly", async () => { });
         it("Repay event emits correctly", async () => { });
