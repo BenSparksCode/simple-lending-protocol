@@ -142,7 +142,13 @@ contract Controller is Ownable {
             "collateral ratio is <= borrow threshold"
         );
 
-        uint256 withdrawable_ = (pos.collateral / colRatio) * (colRatio - borrowThreshold);
+        uint256 withdrawable_;
+
+        if(pos.debt == 0){
+            withdrawable_ = pos.collateral;
+        } else {
+            withdrawable_ = (pos.collateral / colRatio) * (colRatio - borrowThreshold);
+        }
 
         require(withdrawable_ >= _amount, "amount unsafe to withdraw");
 
