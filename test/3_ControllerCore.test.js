@@ -331,7 +331,15 @@ describe("Controller Core tests", function () {
             expect(cBal2).to.equal(cBal1.sub(withdrawAmount))
             expect(wBal2).to.equal(wBal1.add(withdrawAmount))
         });
-        it("Can withdraw all collateral if zero debt", async () => { });
+        it.only("Can withdraw all collateral if zero debt", async () => {
+            let collateral, debt, lastInterest
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
+            expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
+            expect(debt).to.equal(0)
+            await ControllerInstance.connect(whale).withdraw(constants.TEST_PARAMS.collateralOne);
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
+            expect(collateral).to.equal(0)
+        });
         it("Cannot withdraw more than up to safety ratio", async () => { });
         it("Multiple consecutive withdraws work correctly", async () => { });
     })
@@ -358,7 +366,7 @@ describe("Controller Core tests", function () {
                 .to.emit(ControllerInstance, 'Deposit')
                 .withArgs(whaleAddress, constants.TEST_PARAMS.collateralOne);
         });
-        it.only("Borrow event emits correctly", async () => {
+        it("Borrow event emits correctly", async () => {
             let collateral, debt, lastInterest;
             await xSushiInstance.connect(whale).approve(
                 ControllerInstance.address,
