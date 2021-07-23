@@ -339,7 +339,7 @@ describe("Controller Core tests", function () {
             [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
             expect(collateral).to.equal(0)
         });
-        it.only("Cannot withdraw more than up to safety ratio", async () => {
+        it("Cannot withdraw more than up to safety ratio", async () => {
             let withdrawable
             await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne);
             withdrawable = await calcWithdrawable(whaleAddress, ControllerInstance);
@@ -351,7 +351,26 @@ describe("Controller Core tests", function () {
             );
         });
         it("Multiple consecutive withdraws work correctly", async () => {
+            let withdrawable, quarterWithdraw, originalCol, collateral, debt, lastInterest;
+            originalCol = constants.TEST_PARAMS.collateralOne;
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(collateral).to.equal(originalCol)
+            
+            await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne);
+            withdrawable = await calcWithdrawable(whaleAddress, ControllerInstance);
+            quarterWithdraw = withdrawable.div(4);
 
+            await ControllerInstance.connect(whale).withdraw(quarterWithdraw);
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
+            expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne.sub(quarterWithdraw))
+
+            await ControllerInstance.connect(whale).withdraw(quarterWithdraw);
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
+            expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne.sub(quarterWithdraw.mul(2)))
+
+            await ControllerInstance.connect(whale).withdraw(quarterWithdraw);
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
+            expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne.sub(quarterWithdraw.mul(3)))
         });
     })
 
@@ -389,7 +408,7 @@ describe("Controller Core tests", function () {
 
             await expect(await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne))
                 .to.emit(ControllerInstance, 'Borrow')
-                .withArgs(whaleAddress, constants.TEST_PARAMS.borrowedOne, debt, collateral);
+                .withArgs(whaleAddress, constants.TEST_PARAMS.borrowedOne, constants.TEST_PARAMS.borrowedOne, collateral);
         });
         it("Withdraw event emits correctly", async () => { });
         it("Repay event emits correctly", async () => { });
