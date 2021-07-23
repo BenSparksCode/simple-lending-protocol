@@ -11,7 +11,10 @@ import "./IUSDZ.sol";
 
 import "hardhat/console.sol";
 
-// TODO
+// TODO features
+// - add protocol treasury accounting (repay/liquidate)
+
+// TODO fixes
 // - add nonReentrant
 // - check best practices for ABDKMath64x64
 // - implement liquidation

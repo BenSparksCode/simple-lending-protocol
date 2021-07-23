@@ -498,6 +498,40 @@
       "artifacts": [
         "console"
       ]
+    },
+    "C:\\Users\\Ben\\Projects\\simple-lending-protocol\\contracts\\Swapper.sol": {
+      "lastModificationDate": 1627050537625,
+      "contentHash": "75177f44b872ee4ef999f541f307917d",
+      "sourceName": "contracts/Swapper.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Swapper"
+      ]
     }
   }
 }
