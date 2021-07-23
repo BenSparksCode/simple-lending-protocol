@@ -355,7 +355,7 @@ describe("Controller Core tests", function () {
             originalCol = constants.TEST_PARAMS.collateralOne;
             [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             expect(collateral).to.equal(originalCol)
-            
+
             await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne);
             withdrawable = await calcWithdrawable(whaleAddress, ControllerInstance);
             quarterWithdraw = withdrawable.div(4);
@@ -410,7 +410,19 @@ describe("Controller Core tests", function () {
                 .to.emit(ControllerInstance, 'Borrow')
                 .withArgs(whaleAddress, constants.TEST_PARAMS.borrowedOne, constants.TEST_PARAMS.borrowedOne, collateral);
         });
-        it("Withdraw event emits correctly", async () => { });
+        it("Withdraw event emits correctly", async () => {
+            let withdrawAmount = constants.TEST_PARAMS.collateralOne.div(2);
+            await xSushiInstance.connect(whale).approve(
+                ControllerInstance.address,
+                constants.TEST_PARAMS.collateralOne
+            );
+            await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne);
+            await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne);
+
+            await expect(ControllerInstance.connect(whale).withdraw(withdrawAmount))
+                .to.emit(ControllerInstance, 'Withdraw')
+                .withArgs(whaleAddress, withdrawAmount);
+        });
         it("Repay event emits correctly", async () => { });
         it("Liquidation event emits correctly", async () => { });
     })
