@@ -41,6 +41,11 @@ const CONSTANTS = {
             borrow: {
                 cantBorrowZero: "can't borrow 0",
                 notEnoughCol: "not enough collateral to borrow that much",
+            },
+            withdraw: {
+                moreThanAccountCol: "not enough collateral in account",
+                alreadyBelowSafety: "account already below safety ratio",
+                overWithdrawableAmount: "amount unsafe to withdraw"
             }
         },
         USDZ: {

@@ -139,7 +139,7 @@ contract Controller is Ownable {
 
         require(
             colRatio > borrowThreshold,
-            "collateral ratio is <= borrow threshold"
+            "account already below safety ratio"
         );
 
         uint256 withdrawable_;
