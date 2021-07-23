@@ -312,7 +312,6 @@ describe("Controller Core tests", function () {
             )
             await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne)
         })
-
         it("Standard withdraw works correctly", async () => {
             let withdrawable, withdrawAmount, cBal1, wBal1, cBal2, wBal2
             cBal1 = await xSushiInstance.balanceOf(ControllerInstance.address)
@@ -331,7 +330,7 @@ describe("Controller Core tests", function () {
             expect(cBal2).to.equal(cBal1.sub(withdrawAmount))
             expect(wBal2).to.equal(wBal1.add(withdrawAmount))
         });
-        it.only("Can withdraw all collateral if zero debt", async () => {
+        it("Can withdraw all collateral if zero debt", async () => {
             let collateral, debt, lastInterest
             [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
@@ -340,8 +339,20 @@ describe("Controller Core tests", function () {
             [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
             expect(collateral).to.equal(0)
         });
-        it("Cannot withdraw more than up to safety ratio", async () => { });
-        it("Multiple consecutive withdraws work correctly", async () => { });
+        it.only("Cannot withdraw more than up to safety ratio", async () => {
+            let withdrawable
+            await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne);
+            withdrawable = await calcWithdrawable(whaleAddress, ControllerInstance);
+
+            await expect(
+                ControllerInstance.connect(whale).withdraw(withdrawable.add(1))
+            ).to.be.revertedWith(
+                constants.PROTOCOL_REVERTS.CONTROLLER.withdraw.overWithdrawableAmount
+            );
+        });
+        it("Multiple consecutive withdraws work correctly", async () => {
+
+        });
     })
 
     // REPAY
