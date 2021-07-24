@@ -192,11 +192,13 @@ describe("Controller Basic tests", function () {
 
         await fastForward(constants.TEST_PARAMS.secondsInAYear)
 
+        interest = (await ControllerInstance.getPosition(whaleAddress))[2];
         actualInterest = await ControllerInstance.calcInterest(whaleAddress)
         interestEnd = await currentTime()
         expectedInterest = await calcInterest(debt, lastInterest, interestEnd);
 
-        expect(actualInterest).to.equal(expectedInterest)
+        expect(actualInterest).to.equal(expectedInterest)   // JS-calced expected interest
+        expect(actualInterest).to.equal(interest)           // interest from getPosition
     });
     it("setFeesAndRates() works as expected when called by owner", async () => {
         let liqTotalFee, liqFeeShare, interestRate
