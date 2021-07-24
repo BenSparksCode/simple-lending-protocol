@@ -391,7 +391,7 @@ describe("Controller Core tests", function () {
             await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne);
             await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne);
         })
-        it.only("Repay works for partial repayments of debt", async () => {
+        it("Repay works for partial repayments of debt", async () => {
             let collateral, debt, lastInterest, usdzBal;
             [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             usdzBal = await USDZInstance.balanceOf(whaleAddress);
@@ -408,7 +408,13 @@ describe("Controller Core tests", function () {
             expect(usdzBal).to.equal(constants.TEST_PARAMS.borrowedOne.div(2))
         });
         it("Repay works for full repayments of debt", async () => { });
-        it("Cannot repay zero", async () => { });
+        it("Cannot repay zero", async () => {
+            await expect(
+                ControllerInstance.connect(whale).repay(0)
+            ).to.be.revertedWith(
+                constants.PROTOCOL_REVERTS.CONTROLLER.repay.cantRepayZero
+            );
+        });
         it("Over repaying will fully repay and refund rest", async () => { });
         it("Fully repaid account will not accrue any interest", async () => { });
         it("Multiple consecutive partial repayments work correctly", async () => { });
