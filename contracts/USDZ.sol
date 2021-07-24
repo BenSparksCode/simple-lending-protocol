@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./IUSDZ.sol";
+import "./interfaces/IUSDZ.sol";
 
 contract USDZ is ERC20, IUSDZ {
     // contract with permission to mint/burn tokens

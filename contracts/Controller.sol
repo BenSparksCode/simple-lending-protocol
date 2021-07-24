@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./utils/ABDKMath64x64.sol";
 import "./interfaces/IUniswapV2Router02.sol";
-import "./IUSDZ.sol";
+import "./interfaces/IUSDZ.sol";
 
 import "hardhat/console.sol";
 
