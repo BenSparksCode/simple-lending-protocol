@@ -407,7 +407,22 @@ describe("Controller Core tests", function () {
             expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne.div(2))
             expect(usdzBal).to.equal(constants.TEST_PARAMS.borrowedOne.div(2))
         });
-        it("Repay works for full repayments of debt", async () => { });
+        it("Repay works for full repayments of debt", async () => { 
+            let collateral, debt, lastInterest, usdzBal;
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            usdzBal = await USDZInstance.balanceOf(whaleAddress);
+            expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
+            expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne)
+            expect(usdzBal).to.equal(constants.TEST_PARAMS.borrowedOne)
+
+            await ControllerInstance.connect(whale).repay(constants.TEST_PARAMS.borrowedOne);
+
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            usdzBal = await USDZInstance.balanceOf(whaleAddress);
+            expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
+            expect(debt).to.equal(0)
+            expect(usdzBal).to.equal(0)
+        });
         it("Cannot repay zero", async () => {
             await expect(
                 ControllerInstance.connect(whale).repay(0)
