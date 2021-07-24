@@ -467,7 +467,24 @@ describe("Controller Core tests", function () {
             [collateral, debt, interest2, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             expect(interest).to.equal(interest2)
         });
-        it("Multiple consecutive partial repayments work correctly", async () => { });
+        it("Multiple consecutive partial repayments work correctly", async () => {
+            let collateral, debt, interest, lastInterest, repayAmount;
+            repayAmount = constants.TEST_PARAMS.borrowedOne.div(4);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne)
+
+            await ControllerInstance.connect(whale).repay(repayAmount);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne.sub(repayAmount))
+
+            await ControllerInstance.connect(whale).repay(repayAmount);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne.sub(repayAmount.mul(2)))
+
+            await ControllerInstance.connect(whale).repay(repayAmount);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne.sub(repayAmount.mul(3)))
+        });
     })
 
     // EVENTS
