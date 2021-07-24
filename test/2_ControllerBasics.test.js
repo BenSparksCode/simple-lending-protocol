@@ -97,20 +97,22 @@ describe("Controller Basic tests", function () {
         // check deployer is owner
         expect(await ControllerInstance.owner()).to.equal(ownerAddress)
     });
-    it("getPosition() returns blank position as (0,0,0)", async () => {
+    it("getPosition() returns blank position as (0,0,0,0)", async () => {
         // should be publically callable without signer
-        let collateral, debt, lastInterest
-        [collateral, debt, lastInterest] = await ControllerInstance.getPosition(ownerAddress);
+        let collateral, debt, interest, lastInterest
+        [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(ownerAddress);
         expect(collateral).to.equal(0)
         expect(debt).to.equal(0)
+        expect(interest).to.equal(0)
         expect(lastInterest).to.equal(0)
     });
     it("getPosition() returns positive position correctly", async () => {
         // should be publically callable without signer
-        let collateral, debt, lastInterest, time
-        [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+        let collateral, debt, interest, lastInterest, time
+        [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
         expect(collateral).to.equal(0)
         expect(debt).to.equal(0)
+        expect(interest).to.equal(0)
         expect(lastInterest).to.equal(0)
 
         await xSushiInstance.connect(whale).approve(
@@ -122,10 +124,11 @@ describe("Controller Basic tests", function () {
         await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne)
 
         time = await currentTime();
-        [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
+        [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
 
         expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
         expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne)
+        expect(interest).to.equal(0)
         expect(lastInterest).to.be.closeTo(BigNumber.from(time), constants.TEST_PARAMS.timeTolerance);
     });
     it("getCurrentCollateralRatio() returns accurate current collateral ratio", async () => {
@@ -169,12 +172,13 @@ describe("Controller Basic tests", function () {
     });
     it("calcInterest() returns accurate interest for position", async () => {
         // should be publically callable without signer
-        let collateral, debt, interestStart, interestEnd, actualInterest, expectedInterest
-        [collateral, debt, interestStart] = await ControllerInstance.getPosition(whaleAddress);
+        let collateral, debt, interest, lastInterest, interestEnd, actualInterest, expectedInterest
+        [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
 
         expect(collateral).to.equal(0)
         expect(debt).to.equal(0)
-        expect(interestStart).to.equal(0)
+        expect(interest).to.equal(0)
+        expect(lastInterest).to.equal(0)
 
         await depositAndBorrow(
             whale,
@@ -184,13 +188,13 @@ describe("Controller Basic tests", function () {
             ControllerInstance
         );
 
-        [collateral, debt, interestStart] = await ControllerInstance.getPosition(whaleAddress);
+        [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
 
         await fastForward(constants.TEST_PARAMS.secondsInAYear)
 
         actualInterest = await ControllerInstance.calcInterest(whaleAddress)
         interestEnd = await currentTime()
-        expectedInterest = await calcInterest(debt, interestStart, interestEnd);
+        expectedInterest = await calcInterest(debt, lastInterest, interestEnd);
 
         expect(actualInterest).to.equal(expectedInterest)
     });

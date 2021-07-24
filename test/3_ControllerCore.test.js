@@ -91,10 +91,11 @@ describe("Controller Core tests", function () {
     describe("Deposits", async () => {
         it("Standard deposit works correctly", async () => {
             // should be publically callable without signer
-            let collateral, debt, lastInterest
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            let collateral, debt, interest, lastInterest
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             expect(collateral).to.equal(0)
             expect(debt).to.equal(0)
+            expect(interest).to.equal(0)
             expect(lastInterest).to.equal(0)
 
             await xSushiInstance.connect(whale).approve(
@@ -103,10 +104,11 @@ describe("Controller Core tests", function () {
             )
             await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne);
 
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
 
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
             expect(debt).to.equal(0)
+            expect(interest).to.equal(0)
             expect(lastInterest).to.equal(0)
 
         });
@@ -136,10 +138,11 @@ describe("Controller Core tests", function () {
             );
         });
         it("Multiple consecutive deposits work correctly", async () => {
-            let collateral, debt, lastInterest
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            let collateral, debt, interest, lastInterest
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             expect(collateral).to.equal(0)
             expect(debt).to.equal(0)
+            expect(interest).to.equal(0)
             expect(lastInterest).to.equal(0)
 
             await xSushiInstance.connect(whale).approve(
@@ -147,7 +150,7 @@ describe("Controller Core tests", function () {
                 constants.TEST_PARAMS.collateralOne
             )
             await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne);
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne.mul(1))
 
             await xSushiInstance.connect(whale).approve(
@@ -155,7 +158,7 @@ describe("Controller Core tests", function () {
                 constants.TEST_PARAMS.collateralOne
             )
             await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne);
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne.mul(2))
 
             await xSushiInstance.connect(whale).approve(
@@ -163,7 +166,7 @@ describe("Controller Core tests", function () {
                 constants.TEST_PARAMS.collateralOne
             )
             await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne);
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne.mul(3))
         });
     })
@@ -171,10 +174,11 @@ describe("Controller Core tests", function () {
     // BORROW
     describe("Borrows", async () => {
         it("Standard borrow works correctly", async () => {
-            let collateral, debt, lastInterest, time
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            let collateral, debt, interest, lastInterest, time
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             expect(collateral).to.equal(0)
             expect(debt).to.equal(0)
+            expect(interest).to.equal(0)
             expect(lastInterest).to.equal(0)
 
             await xSushiInstance.connect(whale).approve(
@@ -186,19 +190,21 @@ describe("Controller Core tests", function () {
             await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne)
 
             time = await currentTime();
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
 
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
             expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne)
+            expect(interest).to.equal(0)
             expect(lastInterest).to.be.closeTo(BigNumber.from(time), constants.TEST_PARAMS.timeTolerance);
         });
         it("Can borrow exactly to threshold based on collateral", async () => {
-            let collateral, debt, interestStart, maxBorrowable, time
-            [collateral, debt, interestStart] = await ControllerInstance.getPosition(whaleAddress);
+            let collateral, debt, interest, lastInterest, maxBorrowable, time
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
 
             expect(collateral).to.equal(0)
             expect(debt).to.equal(0)
-            expect(interestStart).to.equal(0)
+            expect(interest).to.equal(0)
+            expect(lastInterest).to.equal(0)
 
             // Deposit 10 xSUSHI as collateral
             await xSushiInstance.connect(whale).approve(
@@ -213,19 +219,21 @@ describe("Controller Core tests", function () {
             await ControllerInstance.connect(whale).borrow(maxBorrowable);
 
             time = await currentTime();
-            [collateral, debt, interestStart] = await ControllerInstance.getPosition(whaleAddress);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
 
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
             expect(debt).to.equal(maxBorrowable)
-            expect(interestStart).to.be.closeTo(BigNumber.from(time), constants.TEST_PARAMS.timeTolerance);
+            expect(interest).to.equal(0)
+            expect(lastInterest).to.be.closeTo(BigNumber.from(time), constants.TEST_PARAMS.timeTolerance);
         })
         it("Cannot borrow more than threshold based on collateral", async () => {
-            let collateral, debt, interestStart, maxBorrowable
-            [collateral, debt, interestStart] = await ControllerInstance.getPosition(whaleAddress);
+            let collateral, debt, interest, lastInterest, maxBorrowable
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
 
             expect(collateral).to.equal(0)
             expect(debt).to.equal(0)
-            expect(interestStart).to.equal(0)
+            expect(interest).to.equal(0)
+            expect(lastInterest).to.equal(0)
 
             // Deposit 10 xSUSHI as collateral
             await xSushiInstance.connect(whale).approve(
@@ -257,10 +265,13 @@ describe("Controller Core tests", function () {
                 constants.PROTOCOL_REVERTS.CONTROLLER.borrow.cantBorrowZero
             );
         });
-        it("Borrow changes lastInterest correctly", async () => {
-            let collateral, debt, interestStart, time
-            [collateral, debt, interestStart] = await ControllerInstance.getPosition(whaleAddress);
-            expect(interestStart).to.equal(0)
+        it("Borrow changes interest in getPosition correctly", async () => {
+            // TODO - use below as template
+        })
+        it("Borrow changes lastInterest in getPosition correctly", async () => {
+            let collateral, debt, interest, lastInterest, time
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(lastInterest).to.equal(0)
 
             await xSushiInstance.connect(whale).approve(
                 ControllerInstance.address,
@@ -271,20 +282,21 @@ describe("Controller Core tests", function () {
             await ControllerInstance.connect(whale).borrow(1);
 
             time = await currentTime();
-            [collateral, debt, interestStart] = await ControllerInstance.getPosition(whaleAddress);
-            expect(interestStart).to.be.closeTo(BigNumber.from(time), constants.TEST_PARAMS.timeTolerance);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(lastInterest).to.be.closeTo(BigNumber.from(time), constants.TEST_PARAMS.timeTolerance);
 
             await fastForward(5000)
             await ControllerInstance.connect(whale).borrow(1);
-            [collateral, debt, interestStart] = await ControllerInstance.getPosition(whaleAddress);
-            expect(interestStart).to.be.closeTo(BigNumber.from(time + 5000), constants.TEST_PARAMS.timeTolerance);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(lastInterest).to.be.closeTo(BigNumber.from(time + 5000), constants.TEST_PARAMS.timeTolerance);
         });
         it("Multiple consecutive borrows work correctly", async () => {
-            let collateral, debt, lastInterest, borrowAmount;
+            let collateral, debt, interest, lastInterest, borrowAmount;
             borrowAmount = constants.TEST_PARAMS.borrowedOne.div(3);
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             expect(collateral).to.equal(0)
             expect(debt).to.equal(0)
+            expect(interest).to.equal(0)
             expect(lastInterest).to.equal(0)
 
             await xSushiInstance.connect(whale).approve(
@@ -294,17 +306,17 @@ describe("Controller Core tests", function () {
             await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne)
 
             await ControllerInstance.connect(whale).borrow(borrowAmount);
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
             expect(debt).to.equal(borrowAmount)
 
             await ControllerInstance.connect(whale).borrow(borrowAmount);
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
             expect(debt).to.equal(borrowAmount.mul(2))
 
             await ControllerInstance.connect(whale).borrow(borrowAmount);
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
             expect(debt).to.equal(borrowAmount.mul(3))
         });
@@ -338,12 +350,15 @@ describe("Controller Core tests", function () {
             expect(wBal2).to.equal(wBal1.add(withdrawAmount))
         });
         it("Can withdraw all collateral if zero debt", async () => {
-            let collateral, debt, lastInterest
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
+            let collateral, debt, interest, lastInterest
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
             expect(debt).to.equal(0)
+            expect(interest).to.equal(0)
+            expect(lastInterest).to.equal(0)
+
             await ControllerInstance.connect(whale).withdraw(constants.TEST_PARAMS.collateralOne);
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
             expect(collateral).to.equal(0)
         });
         it("Cannot withdraw more than up to safety ratio", async () => {
@@ -358,9 +373,9 @@ describe("Controller Core tests", function () {
             );
         });
         it("Multiple consecutive withdraws work correctly", async () => {
-            let withdrawable, quarterWithdraw, originalCol, collateral, debt, lastInterest;
+            let withdrawable, quarterWithdraw, originalCol, collateral, debt, interest, lastInterest;
             originalCol = constants.TEST_PARAMS.collateralOne;
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             expect(collateral).to.equal(originalCol)
 
             await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne);
@@ -368,15 +383,15 @@ describe("Controller Core tests", function () {
             quarterWithdraw = withdrawable.div(4);
 
             await ControllerInstance.connect(whale).withdraw(quarterWithdraw);
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne.sub(quarterWithdraw))
 
             await ControllerInstance.connect(whale).withdraw(quarterWithdraw);
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne.sub(quarterWithdraw.mul(2)))
 
             await ControllerInstance.connect(whale).withdraw(quarterWithdraw);
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress)
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne.sub(quarterWithdraw.mul(3)))
         });
     })
@@ -400,8 +415,8 @@ describe("Controller Core tests", function () {
             await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne);
         })
         it("Repay works for partial repayments of debt", async () => {
-            let collateral, debt, lastInterest, usdzBal;
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            let collateral, debt, interest, lastInterest, usdzBal;
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             usdzBal = await USDZInstance.balanceOf(whaleAddress);
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
             expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne)
@@ -409,15 +424,15 @@ describe("Controller Core tests", function () {
 
             await ControllerInstance.connect(whale).repay(constants.TEST_PARAMS.borrowedOne.div(2));
 
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             usdzBal = await USDZInstance.balanceOf(whaleAddress);
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
             expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne.div(2))
             expect(usdzBal).to.equal(constants.TEST_PARAMS.borrowedOne.div(2))
         });
         it("Repay works for full repayments of debt", async () => {
-            let collateral, debt, lastInterest, usdzBal;
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            let collateral, debt, interest, lastInterest, usdzBal;
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             usdzBal = await USDZInstance.balanceOf(whaleAddress);
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
             expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne)
@@ -425,7 +440,7 @@ describe("Controller Core tests", function () {
 
             await ControllerInstance.connect(whale).repay(constants.TEST_PARAMS.borrowedOne);
 
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             usdzBal = await USDZInstance.balanceOf(whaleAddress);
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
             expect(debt).to.equal(0)
@@ -439,10 +454,10 @@ describe("Controller Core tests", function () {
             );
         });
         it("Over repaying will fully repay and refund rest", async () => {
-            let collateral, debt, lastInterest, usdzBal;
+            let collateral, debt, interest, lastInterest, usdzBal;
             // Get extra USDZ
             await ControllerInstance.connect(whale).swapUSDCforUSDZ(constants.TEST_PARAMS.borrowedOne);
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             usdzBal = await USDZInstance.balanceOf(whaleAddress);
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
             expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne)
@@ -450,16 +465,16 @@ describe("Controller Core tests", function () {
 
             await ControllerInstance.connect(whale).repay(constants.TEST_PARAMS.borrowedOne.mul(2));
 
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             usdzBal = await USDZInstance.balanceOf(whaleAddress);
             expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
             expect(debt).to.equal(0)
             expect(usdzBal).to.equal(constants.TEST_PARAMS.borrowedOne)
         });
-        it.only("Full repay after 1 year does not pay off interest", async () => {
-            await logPosition("Whale", whaleAddress, ControllerInstance);
+        it("Full repay after 1 year does not pay off interest", async () => {
+            // await logPosition("Whale", whaleAddress, ControllerInstance);
             await fastForward(constants.TEST_PARAMS.secondsInAYear*10);
-            await logPosition("Whale", whaleAddress, ControllerInstance);
+            // await logPosition("Whale", whaleAddress, ControllerInstance);
         });
         it("Fully repaid account will not accrue any interest", async () => { });
         it("Multiple consecutive partial repayments work correctly", async () => { });
@@ -478,14 +493,14 @@ describe("Controller Core tests", function () {
                 .withArgs(whaleAddress, constants.TEST_PARAMS.collateralOne);
         });
         it("Borrow event emits correctly", async () => {
-            let collateral, debt, lastInterest;
+            let collateral, debt, interest, lastInterest;
             await xSushiInstance.connect(whale).approve(
                 ControllerInstance.address,
                 constants.TEST_PARAMS.collateralOne
             );
             await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne);
 
-            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
 
             await expect(await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne))
                 .to.emit(ControllerInstance, 'Borrow')
