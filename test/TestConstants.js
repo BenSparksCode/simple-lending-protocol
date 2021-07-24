@@ -8,6 +8,7 @@ const CONSTANTS = {
         FPToDecimal: BigNumber.from(2).pow(64), 
         secondsInAYear: 31556952,
         e: 2.71828,
+        infinity: ethers.constants.MaxUint256,
         timeTolerance: 2
     },
     PROTOCOL_PARAMS: {
@@ -46,6 +47,10 @@ const CONSTANTS = {
                 moreThanAccountCol: "not enough collateral in account",
                 alreadyBelowSafety: "account already below safety ratio",
                 overWithdrawableAmount: "amount unsafe to withdraw"
+            },
+            repay: {
+                cantRepayZero: "can't repay 0",
+                repayTransferFailed: "repay transfer failed"
             }
         },
         USDZ: {

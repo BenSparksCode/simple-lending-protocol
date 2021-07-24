@@ -4,6 +4,7 @@
 // - Borrow
 // - Withdraw
 // - Repay
+// - Events
 // -------------------------
 
 const { BigNumber } = require("@ethersproject/bignumber");
@@ -377,8 +378,35 @@ describe("Controller Core tests", function () {
     })
 
     // REPAY
-    describe("Repayments", async () => {
-        it("Repay works for partial repayments of debt", async () => { });
+    describe.only("Repayments", async () => {
+        beforeEach(async () => {
+            await xSushiInstance.connect(whale).approve(
+                ControllerInstance.address,
+                constants.TEST_PARAMS.infinity
+            );
+            await USDZInstance.connect(whale).approve(
+                ControllerInstance.address,
+                constants.TEST_PARAMS.infinity
+            );
+            await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne);
+            await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne);
+        })
+        it.only("Repay works for partial repayments of debt", async () => {
+            let collateral, debt, lastInterest, usdzBal;
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            usdzBal = await USDZInstance.balanceOf(whaleAddress);
+            expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
+            expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne)
+            expect(usdzBal).to.equal(constants.TEST_PARAMS.borrowedOne)
+
+            await ControllerInstance.connect(whale).repay(constants.TEST_PARAMS.borrowedOne.div(2));
+
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            usdzBal = await USDZInstance.balanceOf(whaleAddress);
+            expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
+            expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne.div(2))
+            expect(usdzBal).to.equal(constants.TEST_PARAMS.borrowedOne.div(2))
+        });
         it("Repay works for full repayments of debt", async () => { });
         it("Cannot repay zero", async () => { });
         it("Over repaying will fully repay and refund rest", async () => { });
