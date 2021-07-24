@@ -28,13 +28,14 @@ const fastForward = async (seconds) => {
 
 const logPosition = async (name, address, ControllerInstance) => {
     const pos = await ControllerInstance.getPosition(address)
-    const colRat = await ControllerInstance.getCurrentCollateralRatio(address)
+    const colRat = await ControllerInstance.getForwardCollateralRatio(address, pos[1].add(pos[2]))
     console.log("--------------------------");
     console.log("Name: \t\t\t", name, '(' + address.substring(0, 6) + "...)")
-    console.log("collateral: \t\t", pos[0].div(ethers.utils.parseUnits("1", "ether")).toString(), "xSUSHI");
-    console.log("debt: \t\t\t", pos[1].div(1000000).toString(), "USDZ");
-    console.log("collateral ratio: \t", colRat.div(SCALE/100).toString() + '%');
-    console.log("last interest time: \t", pos[2].toString());
+    console.log("collateral: \t\t", parseFloat(pos[0].mul(100).div(ethers.utils.parseUnits("1", "ether")).toString()) / 100 + '', "xSUSHI");
+    console.log("debt: \t\t\t", parseFloat(pos[1].div(10000).toString()) / 100 + '', "USDZ");
+    console.log("interest: \t\t", parseFloat(pos[2].toString()) / 1000000 + '', "USDZ")
+    console.log("collateral ratio: \t", colRat.div(SCALE / 100).toString() + '%');
+    console.log("last interest time: \t", pos[3].toString());
     console.log("--------------------------");
 }
 
@@ -84,9 +85,9 @@ const calcInterest = async (debt, startTime, endTime) => {
 
 const calcWithdrawable = async (address, ControllerInstance) => {
     // returns BigNumber Int assuming 10^18 decimals (for xSUSHI)
-    let collateral, debt, interestStart, currColRat, borrowThresh
+    let collateral, debt, interest, interestStart, currColRat, borrowThresh;
     currColRat = await ControllerInstance.getCurrentCollateralRatio(address);
-    [collateral, debt, interestStart] = await ControllerInstance.getPosition(address);
+    [collateral, debt, interest, interestStart] = await ControllerInstance.getPosition(address);
     currColRat = BigNumber.from(currColRat)
     collateral = BigNumber.from(collateral)
     borrowThresh = BigNumber.from(constants.PROTOCOL_PARAMS.CONTROLLER.borrowThreshold)
