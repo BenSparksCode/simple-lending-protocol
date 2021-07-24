@@ -448,10 +448,17 @@ describe("Controller Core tests", function () {
             expect(debt).to.equal(0)
             expect(usdzBal).to.equal(constants.TEST_PARAMS.borrowedOne)
         });
-        it("Full repay after 1 year does not pay off interest", async () => {
-            // await logPosition("Whale", whaleAddress, ControllerInstance);
+        it("Repay closes interest to debt and clears interest", async () => {
+            let collateral, debt, interest, interest2, lastInterest;
             await fastForward(constants.TEST_PARAMS.secondsInAYear*10);
-            // await logPosition("Whale", whaleAddress, ControllerInstance);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+
+            await ControllerInstance.connect(whale).repay(constants.TEST_PARAMS.borrowedOne);
+
+            [collateral, debt, interest2, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(interest).to.equal(debt)
+            expect(interest2).to.equal(0)
+            expect(interest.gt(0))
         });
         it("Fully repaid account will not accrue any interest", async () => {
             let collateral, debt, interest, interest2, lastInterest;
