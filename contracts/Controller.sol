@@ -122,7 +122,11 @@ contract Controller is Ownable {
     function deposit(uint256 _amount) public {
         // IERC20 xSUSHI = IERC20(xSushiAddress);
         require(
-            IERC20(xSushiAddress).transferFrom(msg.sender, address(this), _amount),
+            IERC20(xSushiAddress).transferFrom(
+                msg.sender,
+                address(this),
+                _amount
+            ),
             "deposit failed"
         );
 
@@ -250,19 +254,23 @@ contract Controller is Ownable {
     function swapUSDCforUSDZ(uint256 _usdcAmount) public {
         require(_usdcAmount > 0, "can't mint zero USDZ");
         require(
-                IERC20(usdcAddress).transferFrom(
-                    msg.sender,
-                    address(this),
-                    _usdcAmount
-                ),
-                "USDC transfer failed"
-            );
-        // TODO complete
+            IERC20(usdcAddress).transferFrom(
+                msg.sender,
+                address(this),
+                _usdcAmount
+            ),
+            "USDC transfer failed"
+        );
+        IUSDZ(usdzAddress).mint(msg.sender, _usdcAmount);
     }
 
     // Burn USDZ to withdraw USDC 1:1
+    // TODO make nonReentrant
     function swapUSDZforUSDC(uint256 _usdzAmount) public {
-        // check USDC balance is good
+        uint256 usdcBalance = IERC20(usdcAddress).balanceOf(address(this));
+        require(usdcBalance >= _usdzAmount, "USDC reserve too low");
+        IUSDZ(usdzAddress).burn(msg.sender, _usdzAmount);
+        IERC20(usdcAddress).transfer(msg.sender, _usdzAmount);
     }
 
     // ---------------------------------------------------------------------

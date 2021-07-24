@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\Ben\\Projects\\simple-lending-protocol\\contracts\\Controller.sol": {
-      "lastModificationDate": 1627114088657,
-      "contentHash": "92e4e0ecfa333fe85575e398d3446a68",
+      "lastModificationDate": 1627116926650,
+      "contentHash": "6c63067989b83dd0cfb2021fcf8cfbf9",
       "sourceName": "contracts/Controller.sol",
       "solcConfig": {
         "version": "0.8.0",
@@ -461,40 +461,6 @@
       ],
       "artifacts": [
         "console"
-      ]
-    },
-    "C:\\Users\\Ben\\Projects\\simple-lending-protocol\\contracts\\Swapper.sol": {
-      "lastModificationDate": 1627051102936,
-      "contentHash": "805230cad517bf68a2385e04357cdf7b",
-      "sourceName": "contracts/Swapper.sol",
-      "solcConfig": {
-        "version": "0.8.0",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "Swapper"
       ]
     },
     "C:\\Users\\Ben\\Projects\\simple-lending-protocol\\contracts\\interfaces\\IUSDZ.sol": {
