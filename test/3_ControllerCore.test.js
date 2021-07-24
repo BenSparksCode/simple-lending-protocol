@@ -253,7 +253,21 @@ describe("Controller Core tests", function () {
             );
         });
         it("Borrow changes interest in getPosition correctly", async () => {
-            // TODO - use below as template
+            let collateral, debt, interest, lastInterest, expectedInterest
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(interest).to.equal(0)
+
+            await xSushiInstance.connect(whale).approve(
+                ControllerInstance.address,
+                constants.TEST_PARAMS.collateralOne
+            )
+            await ControllerInstance.connect(whale).deposit(constants.TEST_PARAMS.collateralOne);
+            await ControllerInstance.connect(whale).borrow(constants.TEST_PARAMS.borrowedOne);
+            await fastForward(constants.TEST_PARAMS.secondsInAYear * 10);
+
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expectedInterest = await calcInterest(constants.TEST_PARAMS.borrowedOne, 0, constants.TEST_PARAMS.secondsInAYear * 10)
+            expect(interest).to.be.closeTo(BigNumber.from(expectedInterest), 3);
         })
         it("Borrow changes lastInterest in getPosition correctly", async () => {
             let collateral, debt, interest, lastInterest, time
@@ -450,7 +464,7 @@ describe("Controller Core tests", function () {
         });
         it("Repay closes interest to debt and clears interest", async () => {
             let collateral, debt, interest, interest2, lastInterest;
-            await fastForward(constants.TEST_PARAMS.secondsInAYear*10);
+            await fastForward(constants.TEST_PARAMS.secondsInAYear * 10);
             [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
 
             await ControllerInstance.connect(whale).repay(constants.TEST_PARAMS.borrowedOne);
@@ -470,7 +484,7 @@ describe("Controller Core tests", function () {
             expect(debt).to.equal(0)
 
             // wait 10 years for interest to accrue
-            await fastForward(constants.TEST_PARAMS.secondsInAYear*10);
+            await fastForward(constants.TEST_PARAMS.secondsInAYear * 10);
             [collateral, debt, interest2, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             expect(interest).to.equal(interest2)
         });
@@ -551,6 +565,6 @@ describe("Controller Core tests", function () {
                     constants.TEST_PARAMS.borrowedOne.div(4).mul(3),
                     constants.TEST_PARAMS.collateralOne
                 );
-        }); 
+        });
     })
 });
