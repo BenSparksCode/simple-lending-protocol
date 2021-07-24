@@ -281,13 +281,16 @@ contract Controller is Ownable {
         returns (
             uint256,
             uint256,
+            uint256,
             uint256
         )
     {
+        calcInterest(_account);
         return (
-            positions[_account].collateral,
-            positions[_account].debt,
-            positions[_account].lastInterest
+            positions[_account].collateral,     // collateral
+            positions[_account].debt,           // debt
+            calcInterest(_account),             // interest
+            positions[_account].lastInterest    // interestCalcStartTime
         );
     }
 

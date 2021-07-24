@@ -456,7 +456,11 @@ describe("Controller Core tests", function () {
             expect(debt).to.equal(0)
             expect(usdzBal).to.equal(constants.TEST_PARAMS.borrowedOne)
         });
-        it("Full repay after 1 year does not pay off interest", async () => { });
+        it.only("Full repay after 1 year does not pay off interest", async () => {
+            await logPosition("Whale", whaleAddress, ControllerInstance);
+            await fastForward(constants.TEST_PARAMS.secondsInAYear*10);
+            await logPosition("Whale", whaleAddress, ControllerInstance);
+        });
         it("Fully repaid account will not accrue any interest", async () => { });
         it("Multiple consecutive partial repayments work correctly", async () => { });
     })
@@ -500,7 +504,7 @@ describe("Controller Core tests", function () {
                 .to.emit(ControllerInstance, 'Withdraw')
                 .withArgs(whaleAddress, withdrawAmount);
         });
-        it.only("Repay event emits correctly", async () => {
+        it("Repay event emits correctly", async () => {
             await xSushiInstance.connect(whale).approve(
                 ControllerInstance.address,
                 constants.TEST_PARAMS.infinity
@@ -518,7 +522,6 @@ describe("Controller Core tests", function () {
                     constants.TEST_PARAMS.borrowedOne.div(4).mul(3),
                     constants.TEST_PARAMS.collateralOne
                 );
-        });
-        it("Liquidation event emits correctly", async () => { });
+        }); 
     })
 });
