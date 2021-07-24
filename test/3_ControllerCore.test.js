@@ -57,6 +57,7 @@ describe("Controller Core tests", function () {
         ControllerContract = await ethers.getContractFactory("Controller")
         ControllerInstance = await ControllerContract.connect(owner).deploy(
             ethers.constants.AddressZero, // update to address after token deployed
+            constants.CONTRACTS.TOKENS.USDC,
             constants.CONTRACTS.TOKENS.XSUSHI,
             constants.CONTRACTS.SUSHI.ROUTER,
             constants.PROTOCOL_PARAMS.CONTROLLER.xSushiToUsdcPath,
@@ -76,6 +77,7 @@ describe("Controller Core tests", function () {
 
         await ControllerInstance.connect(owner).setTokenAddresses(
             USDZInstance.address,
+            constants.CONTRACTS.TOKENS.USDC,
             constants.CONTRACTS.TOKENS.XSUSHI
         )
     })

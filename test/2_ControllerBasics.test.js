@@ -49,6 +49,7 @@ describe("Controller Basic tests", function () {
         ControllerContract = await ethers.getContractFactory("Controller")
         ControllerInstance = await ControllerContract.connect(owner).deploy(
             ethers.constants.AddressZero, // update to address after token deployed
+            constants.CONTRACTS.TOKENS.USDC,
             constants.CONTRACTS.TOKENS.XSUSHI,
             constants.CONTRACTS.SUSHI.ROUTER,
             constants.PROTOCOL_PARAMS.CONTROLLER.xSushiToUsdcPath,
@@ -68,6 +69,7 @@ describe("Controller Basic tests", function () {
 
         await ControllerInstance.connect(owner).setTokenAddresses(
             USDZInstance.address,
+            constants.CONTRACTS.TOKENS.USDC,
             constants.CONTRACTS.TOKENS.XSUSHI
         )
     })
@@ -255,23 +257,28 @@ describe("Controller Basic tests", function () {
         );
     });
     it("setTokenAddresses() works as expected when called by owner", async () => {
-        let usdz, xsushi
+        let usdz, usdc, xsushi
 
         usdz = await ControllerInstance.usdzAddress()
+        usdc = await ControllerInstance.usdcAddress()
         xsushi = await ControllerInstance.xSushiAddress()
 
         expect(usdz).to.equal(USDZInstance.address)
+        expect(usdc).to.equal(constants.CONTRACTS.TOKENS.USDC)
         expect(xsushi).to.equal(constants.CONTRACTS.TOKENS.XSUSHI)
 
         await ControllerInstance.connect(owner).setTokenAddresses(
             constants.CONTRACTS.TOKENS.USDC,
+            constants.CONTRACTS.TOKENS.XSUSHI,
             constants.CONTRACTS.TOKENS.USDC
         )
 
         usdz = await ControllerInstance.usdzAddress()
+        usdc = await ControllerInstance.usdcAddress()
         xsushi = await ControllerInstance.xSushiAddress()
 
         expect(usdz).to.equal(constants.CONTRACTS.TOKENS.USDC)
+        expect(usdc).to.equal(constants.CONTRACTS.TOKENS.XSUSHI)
         expect(xsushi).to.equal(constants.CONTRACTS.TOKENS.USDC)
     });
     it("setTokenAddresses() reverts when called by non-owner", async () => {
