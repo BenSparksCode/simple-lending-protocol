@@ -13,12 +13,8 @@ const { ethers } = require("hardhat");
 
 const { constants } = require("./TestConstants")
 const {
-    logPosition,
     currentTime,
     fastForward,
-    depositAndBorrow,
-    xSUSHIPrice,
-    calcCollateralRatio,
     calcBorrowedGivenRatio,
     calcInterest,
     calcWithdrawable,
@@ -392,6 +388,7 @@ describe("Controller Core tests", function () {
     })
 
     // REPAY
+    // TODO repay should direct interest to protocol - still needs tests
     describe("Repayments", async () => {
         beforeEach(async () => {
             await USDCInstance.connect(whale).approve(
