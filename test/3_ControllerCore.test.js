@@ -453,7 +453,20 @@ describe("Controller Core tests", function () {
             await fastForward(constants.TEST_PARAMS.secondsInAYear*10);
             // await logPosition("Whale", whaleAddress, ControllerInstance);
         });
-        it("Fully repaid account will not accrue any interest", async () => { });
+        it("Fully repaid account will not accrue any interest", async () => {
+            let collateral, debt, interest, interest2, lastInterest;
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+
+            expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne)
+            await ControllerInstance.connect(whale).repay(constants.TEST_PARAMS.borrowedOne);
+            [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(debt).to.equal(0)
+
+            // wait 10 years for interest to accrue
+            await fastForward(constants.TEST_PARAMS.secondsInAYear*10);
+            [collateral, debt, interest2, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            expect(interest).to.equal(interest2)
+        });
         it("Multiple consecutive partial repayments work correctly", async () => { });
     })
 
