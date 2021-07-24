@@ -12,15 +12,13 @@ import "./interfaces/IUSDZ.sol";
 import "hardhat/console.sol";
 
 // TODO features
+// - Liquidate function
 // - add protocol treasury accounting (repay/liquidate)
-// - add USDZ <> USDC swapping
 // - dealing with protocol shortfall
 
 // TODO fixes
 // - add nonReentrant
 // - check best practices for ABDKMath64x64
-// - implement liquidation
-// - implement swapper
 // - standardize revert msgs
 // - use smaller uints for fees and rates
 
