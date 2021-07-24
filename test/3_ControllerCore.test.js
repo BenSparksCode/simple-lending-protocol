@@ -41,6 +41,11 @@ let xSushiInstance = new ethers.Contract(
     ERC20_ABI.abi,
     ethers.provider
 )
+let USDCInstance = new ethers.Contract(
+    constants.CONTRACTS.TOKENS.USDC,
+    ERC20_ABI.abi,
+    ethers.provider
+)
 
 describe("Controller Core tests", function () {
     beforeEach(async () => {
@@ -75,7 +80,6 @@ describe("Controller Core tests", function () {
             constants.PROTOCOL_PARAMS.USDZ.name,
             constants.PROTOCOL_PARAMS.USDZ.symbol
         )
-
         await ControllerInstance.connect(owner).setTokenAddresses(
             USDZInstance.address,
             constants.CONTRACTS.TOKENS.USDC,
@@ -380,6 +384,10 @@ describe("Controller Core tests", function () {
     // REPAY
     describe.only("Repayments", async () => {
         beforeEach(async () => {
+            await USDCInstance.connect(whale).approve(
+                ControllerInstance.address,
+                constants.TEST_PARAMS.infinity
+            );
             await xSushiInstance.connect(whale).approve(
                 ControllerInstance.address,
                 constants.TEST_PARAMS.infinity
@@ -407,7 +415,7 @@ describe("Controller Core tests", function () {
             expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne.div(2))
             expect(usdzBal).to.equal(constants.TEST_PARAMS.borrowedOne.div(2))
         });
-        it("Repay works for full repayments of debt", async () => { 
+        it("Repay works for full repayments of debt", async () => {
             let collateral, debt, lastInterest, usdzBal;
             [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
             usdzBal = await USDZInstance.balanceOf(whaleAddress);
@@ -430,7 +438,24 @@ describe("Controller Core tests", function () {
                 constants.PROTOCOL_REVERTS.CONTROLLER.repay.cantRepayZero
             );
         });
-        it("Over repaying will fully repay and refund rest", async () => { });
+        it("Over repaying will fully repay and refund rest", async () => {
+            let collateral, debt, lastInterest, usdzBal;
+            // Get extra USDZ
+            await ControllerInstance.connect(whale).swapUSDCforUSDZ(constants.TEST_PARAMS.borrowedOne);
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            usdzBal = await USDZInstance.balanceOf(whaleAddress);
+            expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
+            expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne)
+            expect(usdzBal).to.equal(constants.TEST_PARAMS.borrowedOne.mul(2))
+
+            await ControllerInstance.connect(whale).repay(constants.TEST_PARAMS.borrowedOne.mul(2));
+
+            [collateral, debt, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+            usdzBal = await USDZInstance.balanceOf(whaleAddress);
+            expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
+            expect(debt).to.equal(0)
+            expect(usdzBal).to.equal(constants.TEST_PARAMS.borrowedOne)
+        });
         it("Fully repaid account will not accrue any interest", async () => { });
         it("Multiple consecutive partial repayments work correctly", async () => { });
     })
