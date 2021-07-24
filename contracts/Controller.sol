@@ -13,6 +13,8 @@ import "hardhat/console.sol";
 
 // TODO features
 // - add protocol treasury accounting (repay/liquidate)
+// - add USDZ <> USDC swapping
+// - dealing with protocol shortfall
 
 // TODO fixes
 // - add nonReentrant
@@ -20,10 +22,9 @@ import "hardhat/console.sol";
 // - implement liquidation
 // - implement swapper
 // - standardize revert msgs
+// - use smaller uints for fees and rates
 
 contract Controller is Ownable {
-    // using ABDKMath64x64 for int128;
-
     struct Position {
         uint256 collateral;
         uint256 debt;
@@ -34,6 +35,7 @@ contract Controller is Ownable {
 
     uint256 public protocolShortfall;
 
+    address public usdcAddress;
     address public usdzAddress;
     address public xSushiAddress;
     address public sushiRouterAddress;
@@ -83,6 +85,7 @@ contract Controller is Ownable {
 
     constructor(
         address _usdzAddress,
+        address _usdcAddress,
         address _xSushiAddress,
         address _routerAddress,
         address[] memory _swapPath,
@@ -93,6 +96,7 @@ contract Controller is Ownable {
         uint256 _liqThreshold
     ) {
         usdzAddress = _usdzAddress;
+        usdcAddress = _usdcAddress;
         xSushiAddress = _xSushiAddress;
         sushiRouterAddress = _routerAddress;
 
@@ -116,9 +120,9 @@ contract Controller is Ownable {
 
     // User deposits xSUSHI as collateral
     function deposit(uint256 _amount) public {
-        IERC20 xSUSHI = IERC20(xSushiAddress);
+        // IERC20 xSUSHI = IERC20(xSushiAddress);
         require(
-            xSUSHI.transferFrom(msg.sender, address(this), _amount),
+            IERC20(xSushiAddress).transferFrom(msg.sender, address(this), _amount),
             "deposit failed"
         );
 
@@ -147,10 +151,12 @@ contract Controller is Ownable {
 
         uint256 withdrawable_;
 
-        if(pos.debt == 0){
+        if (pos.debt == 0) {
             withdrawable_ = pos.collateral;
         } else {
-            withdrawable_ = (pos.collateral / colRatio) * (colRatio - borrowThreshold);
+            withdrawable_ =
+                (pos.collateral / colRatio) *
+                (colRatio - borrowThreshold);
         }
 
         require(withdrawable_ >= _amount, "amount unsafe to withdraw");
@@ -234,6 +240,29 @@ contract Controller is Ownable {
         // market sell some collateral for USDC
         // account for protocol shortfall
         emit Liquidation(_account, msg.sender, 0, 0, 0);
+    }
+
+    // ---------------------------------------------------------------------
+    // SWAPPER FUNCTIONS
+    // ---------------------------------------------------------------------
+
+    // Deposit USDC to mint USDZ 1:1
+    function swapUSDCforUSDZ(uint256 _usdcAmount) public {
+        require(_usdcAmount > 0, "can't mint zero USDZ");
+        require(
+                IERC20(usdcAddress).transferFrom(
+                    msg.sender,
+                    address(this),
+                    _usdcAmount
+                ),
+                "USDC transfer failed"
+            );
+        // TODO complete
+    }
+
+    // Burn USDZ to withdraw USDC 1:1
+    function swapUSDZforUSDC(uint256 _usdzAmount) public {
+        // check USDC balance is good
     }
 
     // ---------------------------------------------------------------------
@@ -397,12 +426,17 @@ contract Controller is Ownable {
         liquidationThreshold = _liqThreshold;
     }
 
-    function setTokenAddresses(address _usdz, address _xsushi)
-        external
-        onlyOwner()
-    {
-        require(_usdz != address(0), "zero address not allowed");
+    function setTokenAddresses(
+        address _usdz,
+        address _usdc,
+        address _xsushi
+    ) external onlyOwner() {
+        require(
+            _usdz != address(0) && _usdc != address(0) && _xsushi != address(0),
+            "zero address not allowed"
+        );
         usdzAddress = _usdz;
+        usdcAddress = _usdc;
         xSushiAddress = _xsushi;
     }
 
