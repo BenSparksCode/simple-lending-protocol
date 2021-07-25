@@ -234,7 +234,22 @@ contract Controller is Ownable {
 
     // Liquidates account if collateral ratio below safety threshold
     function liquidate(address _account) public {
-        // TODO
+        // TODO - finish
+        require(
+            positions[_account].collateral > 0,
+            "account has no collateral"
+        );
+
+        Position storage pos = positions[_account];
+        uint256 interest_ = calcInterest(_account);
+
+        // Check debt + interest puts account below liquidation col ratio
+        require(
+            getForwardCollateralRatio(_account, pos.debt + interest_) <
+                liquidationThreshold,
+            "account not below liq threshold"
+        );
+
         // calc interest
         // calc forward Col Rat
         // if col rat < threshold: liquidate
@@ -287,10 +302,10 @@ contract Controller is Ownable {
     {
         calcInterest(_account);
         return (
-            positions[_account].collateral,     // collateral
-            positions[_account].debt,           // debt
-            calcInterest(_account),             // interest
-            positions[_account].lastInterest    // interestCalcStartTime
+            positions[_account].collateral, // collateral
+            positions[_account].debt, // debt
+            calcInterest(_account), // interest
+            positions[_account].lastInterest // interestCalcStartTime
         );
     }
 
