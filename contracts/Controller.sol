@@ -359,6 +359,14 @@ contract Controller is Ownable {
         );
     }
 
+    function getLiquidationFees(address _account)
+        public
+        view
+        returns (uint256)
+    {
+        return liquidationFees[_account];
+    }
+
     // ---------------------------------------------------------------------
     // HELPER FUNCTIONS
     // ---------------------------------------------------------------------
