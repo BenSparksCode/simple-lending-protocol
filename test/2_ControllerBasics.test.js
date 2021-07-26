@@ -53,11 +53,11 @@ describe("Controller Basic tests", function () {
             constants.CONTRACTS.TOKENS.XSUSHI,
             constants.CONTRACTS.SUSHI.ROUTER,
             constants.PROTOCOL_PARAMS.CONTROLLER.xSushiToUsdcPath,
-            constants.PROTOCOL_PARAMS.CONTROLLER.liqTotalFee,
-            constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeShare,
+            constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeProtocol,
+            constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeSender,
             constants.PROTOCOL_PARAMS.CONTROLLER.interestRate,
             constants.PROTOCOL_PARAMS.CONTROLLER.borrowThreshold,
-            constants.PROTOCOL_PARAMS.CONTROLLER.liquidationThreshold,
+            constants.PROTOCOL_PARAMS.CONTROLLER.liqThreshold,
         )
 
         USDZContract = await ethers.getContractFactory("USDZ")
@@ -81,12 +81,12 @@ describe("Controller Basic tests", function () {
         expect(await ControllerInstance.xSushiAddress()).to.equal(constants.CONTRACTS.TOKENS.XSUSHI)
         expect(await ControllerInstance.sushiRouterAddress()).to.equal(constants.CONTRACTS.SUSHI.ROUTER)
         // Fees
-        expect(await ControllerInstance.liquidationFee()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liqTotalFee)
-        expect(await ControllerInstance.liquidatorFeeShare()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeShare)
+        expect(await ControllerInstance.liqFeeProtocol()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeProtocol)
+        expect(await ControllerInstance.liqFeeSender()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeSender)
         expect(await ControllerInstance.interestRate()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.interestRate)
         // Thresholds
         expect(await ControllerInstance.borrowThreshold()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.borrowThreshold)
-        expect(await ControllerInstance.liquidationThreshold()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liquidationThreshold)
+        expect(await ControllerInstance.liqThreshold()).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liqThreshold)
         // xSUSHI to USDC swap path (address[])
         expect(await ControllerInstance.xSushiToUsdcPath(0)).to.equal(constants.CONTRACTS.TOKENS.XSUSHI)
         expect(await ControllerInstance.xSushiToUsdcPath(1)).to.equal(constants.CONTRACTS.TOKENS.WETH)
@@ -201,14 +201,14 @@ describe("Controller Basic tests", function () {
         expect(actualInterest).to.equal(interest)           // interest from getPosition
     });
     it("setFeesAndRates() works as expected when called by owner", async () => {
-        let liqTotalFee, liqFeeShare, interestRate
+        let liqFeeProtocol, liqFeeSender, interestRate
 
-        liqTotalFee = await ControllerInstance.liquidationFee()
-        liqFeeShare = await ControllerInstance.liquidatorFeeShare()
+        liqFeeProtocol = await ControllerInstance.liqFeeProtocol()
+        liqFeeSender = await ControllerInstance.liqFeeSender()
         interestRate = await ControllerInstance.interestRate()
 
-        expect(liqTotalFee).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liqTotalFee)
-        expect(liqFeeShare).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeShare)
+        expect(liqFeeProtocol).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeProtocol)
+        expect(liqFeeSender).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeSender)
         expect(interestRate).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.interestRate)
 
         await ControllerInstance.connect(owner).setFeesAndRates(
@@ -217,12 +217,12 @@ describe("Controller Basic tests", function () {
             987
         )
 
-        liqTotalFee = await ControllerInstance.liquidationFee()
-        liqFeeShare = await ControllerInstance.liquidatorFeeShare()
+        liqFeeProtocol = await ControllerInstance.liqFeeProtocol()
+        liqFeeSender = await ControllerInstance.liqFeeSender()
         interestRate = await ControllerInstance.interestRate()
 
-        expect(liqTotalFee).to.equal(765)
-        expect(liqFeeShare).to.equal(432)
+        expect(liqFeeProtocol).to.equal(765)
+        expect(liqFeeSender).to.equal(432)
         expect(interestRate).to.equal(987)
     });
     it("setFeesAndRates() reverts when called by non-owner", async () => {
@@ -236,10 +236,10 @@ describe("Controller Basic tests", function () {
         let borrowThresh, liqThresh
 
         borrowThresh = await ControllerInstance.borrowThreshold()
-        liqThresh = await ControllerInstance.liquidationThreshold()
+        liqThresh = await ControllerInstance.liqThreshold()
 
         expect(borrowThresh).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.borrowThreshold)
-        expect(liqThresh).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liquidationThreshold)
+        expect(liqThresh).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.liqThreshold)
 
         await ControllerInstance.connect(owner).setThresholds(
             constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR,
@@ -247,7 +247,7 @@ describe("Controller Basic tests", function () {
         )
 
         borrowThresh = await ControllerInstance.borrowThreshold()
-        liqThresh = await ControllerInstance.liquidationThreshold()
+        liqThresh = await ControllerInstance.liqThreshold()
 
         expect(borrowThresh).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR)
         expect(liqThresh).to.equal(constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR)
