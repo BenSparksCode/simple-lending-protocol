@@ -63,11 +63,11 @@ describe("Controller Core tests", function () {
             constants.CONTRACTS.TOKENS.XSUSHI,
             constants.CONTRACTS.SUSHI.ROUTER,
             constants.PROTOCOL_PARAMS.CONTROLLER.xSushiToUsdcPath,
-            constants.PROTOCOL_PARAMS.CONTROLLER.liqTotalFee,
-            constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeShare,
+            constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeProtocol,
+            constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeSender,
             constants.PROTOCOL_PARAMS.CONTROLLER.interestRate,
             constants.PROTOCOL_PARAMS.CONTROLLER.borrowThreshold,
-            constants.PROTOCOL_PARAMS.CONTROLLER.liquidationThreshold,
+            constants.PROTOCOL_PARAMS.CONTROLLER.liqThreshold,
         )
 
         USDZContract = await ethers.getContractFactory("USDZ")
