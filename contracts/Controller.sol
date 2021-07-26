@@ -18,9 +18,12 @@ import "hardhat/console.sol";
 
 // TODO fixes
 // - add nonReentrant
+// - remove fees/rates in contructor - setter only for safety
+// - consider refactoring price query to sep function
 // - check best practices for ABDKMath64x64
 // - standardize revert msgs
 // - use smaller uints for fees and rates
+// - natspec comments for functions
 
 contract Controller is Ownable {
     struct Position {
@@ -84,8 +87,6 @@ contract Controller is Ownable {
     // ---------------------------------------------------------------------
     // CONSTRUCTOR
     // ---------------------------------------------------------------------
-
-    // TODO fees and rates removed and only set in func with requires for safety
     constructor(
         address _usdzAddress,
         address _usdcAddress,
@@ -116,7 +117,14 @@ contract Controller is Ownable {
         // set SECONDS_IN_YEAR for interest calculations
         SECONDS_IN_YEAR = ABDKMath64x64.fromUInt(31556952);
 
-        // TODO infinite approve Sushi pool for token swapping
+        // infinite approve Sushi pool for token liquidation swaps
+        require(
+            IERC20(xSushiAddress).approve(
+                address(sushiRouterAddress),
+                type(uint256).max
+            ),
+            "xsushi approve failed"
+        );
     }
 
     // ---------------------------------------------------------------------
@@ -240,7 +248,7 @@ contract Controller is Ownable {
     }
 
     // Liquidates account if collateral ratio below safety threshold
-    function liquidate(address _account) public {
+    function liquidate(address _account, uint256 _maxDiscount) public {
         // TODO - finish
         Position storage pos = positions[_account];
 
@@ -264,14 +272,34 @@ contract Controller is Ownable {
             protocolShare + liquidatorShare <= pos.collateral,
             "liq fees incorrectly set"
         );
+        require(_maxDiscount <= SCALING_FACTOR, "max discount max is 100%");
 
         // taking protocol fees in xSUSHI
         liquidationFees[address(this)] += protocolShare;
         // paying liquidator fees in xSUSHI
         liquidationFees[msg.sender] += liquidatorShare;
 
-        // TODO
+        // TODO refactor price query to separate function - use in _getCollateralRatio
+        uint256 collateralValInUSDC = IUniswapV2Router02(sushiRouterAddress)
+        .getAmountsOut(pos.collateral, xSushiToUsdcPath)[2];
+
         // sell remaining xSUSHI collateral for USDC
+        IUniswapV2Router02 router = IUniswapV2Router02(sushiRouterAddress);
+
+        // TODO use the returned amounts to calc shortfall etc
+        router.swapExactTokensForTokens(
+            pos.collateral - (protocolShare + liquidatorShare),
+            (collateralValInUSDC * (SCALING_FACTOR - _maxDiscount)) /
+                SCALING_FACTOR,
+            xSushiToUsdcPath,
+            address(this),
+            block.timestamp
+        );
+
+        pos.collateral = 0;
+        pos.debt = 0;
+
+        // TODO account for shortfall
 
         emit Liquidation(_account, msg.sender, 0, 0, 0);
     }
