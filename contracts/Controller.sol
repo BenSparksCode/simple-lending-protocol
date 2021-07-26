@@ -331,9 +331,15 @@ contract Controller is Ownable {
         IERC20(usdcAddress).transfer(msg.sender, _usdzAmount);
     }
 
-    // TODO options to claim in xSUSHI / USDC / USDZ ?
-    function claimFees(uint256 _amount) public {
-        // TODO withdraw liquidation / protocol fees
+    function claimLiquidationFees(uint256 _amount) public {
+        require(
+            liquidationFees[msg.sender] >= _amount,
+            "amount higher than balance"
+        );
+
+        liquidationFees[msg.sender] -= _amount;
+
+        IERC20(xSushiAddress).transfer(msg.sender, _amount);
     }
 
     // ---------------------------------------------------------------------
