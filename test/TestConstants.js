@@ -16,11 +16,11 @@ const CONSTANTS = {
             SCALING_FACTOR: 10000,          // fees and rates / 10 000
             SECONDS_IN_YEAR: 31556952,
             SECONDS_IN_YEAR_FP: BigNumber.from(31556952).mul(BigNumber.from(2).pow(64)),
-            liqTotalFee: 1000,
-            liqFeeShare: 200,
+            liqFeeProtocol: 800,
+            liqFeeSender: 200,
             interestRate: 300,
             borrowThreshold: 20000,         // 200%
-            liquidationThreshold: 15000,    // 150%
+            liqThreshold: 15000,    // 150%
             xSushiToUsdcPath: [
                 "0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272",
                 "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -35,8 +35,7 @@ const CONSTANTS = {
     PROTOCOL_REVERTS: {
         CONTROLLER: {
             setFeesAndRates: {
-                liqTotalFee: "liqTotalFee out of range",
-                liqFeeShare: "liqFeeShare out of range",
+                liqFees: "liq fees out of range",
                 interestRate: "interestRate out of range"
             },
             borrow: {

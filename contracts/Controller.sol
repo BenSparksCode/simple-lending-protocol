@@ -44,13 +44,13 @@ contract Controller is Ownable {
 
     address[] public xSushiToUsdcPath;
 
-    uint256 public liquidationFee;
-    uint256 public liquidatorFeeShare;
+    uint256 public liqFeeProtocol;
+    uint256 public liqFeeSender;
 
     uint256 public interestRate;
 
     uint256 public borrowThreshold;
-    uint256 public liquidationThreshold;
+    uint256 public liqThreshold;
 
     uint256 public constant SCALING_FACTOR = 10000;
     int128 public SECONDS_IN_YEAR; // int128 for compound interest math
@@ -91,8 +91,8 @@ contract Controller is Ownable {
         address _xSushiAddress,
         address _routerAddress,
         address[] memory _swapPath,
-        uint256 _liqTotalFee,
-        uint256 _liqFeeShare,
+        uint256 _liqFeeProtocol,
+        uint256 _liqFeeSender,
         uint256 _interestRate,
         uint256 _borrowThreshold,
         uint256 _liqThreshold
@@ -103,11 +103,11 @@ contract Controller is Ownable {
         sushiRouterAddress = _routerAddress;
 
         // fees and rates use SCALING_FACTOR (default 10 000)
-        liquidationFee = _liqTotalFee;
-        liquidatorFeeShare = _liqFeeShare;
+        liqFeeProtocol = _liqFeeProtocol;
+        liqFeeSender = _liqFeeSender;
         interestRate = _interestRate;
         borrowThreshold = _borrowThreshold;
-        liquidationThreshold = _liqThreshold;
+        liqThreshold = _liqThreshold;
 
         // building xSUSHI-USDC SushiSwap pricing path
         xSushiToUsdcPath = _swapPath;
@@ -248,26 +248,19 @@ contract Controller is Ownable {
         // Check debt + interest puts account below liquidation col ratio
         require(
             getForwardCollateralRatio(_account, pos.debt + interest_) <
-                liquidationThreshold,
+                liqThreshold,
             "account not below liq threshold"
         );
 
-        _liquidate(_account);
+        liquidationFees[address(this)] += ((pos.collateral * liqFeeProtocol) /
+            SCALING_FACTOR);
 
-        // calc interest
-        // calc forward Col Rat
-        // if col rat < threshold: liquidate
-        // split collateral across accounts
-        // market sell some collateral for USDC
-        // TODO account for protocol shortfall
+        // TODO
+        // take protocol fee in xSUSHI
+        // account msg.sender liquidator fee in xSUSHI
+        // sell remaining xSUSHI collateral for USDC
+
         emit Liquidation(_account, msg.sender, 0, 0, 0);
-    }
-
-    // internal liquidate logic
-    function _liquidate(address _account) internal {
-        // TODO take fee in xSUSHI
-        // TODO sell xSUSHI collateral for USDC
-
     }
 
     // ---------------------------------------------------------------------
@@ -422,29 +415,20 @@ contract Controller is Ownable {
     // ---------------------------------------------------------------------
 
     function setFeesAndRates(
-        uint256 _liqTotalFee,
-        uint256 _liqFeeShare,
+        uint256 _liqFeeProtocol,
+        uint256 _liqFeeSender,
         uint256 _interestRate
     ) external onlyOwner {
         // Liquidation fees
         require(
-            _liqTotalFee <= SCALING_FACTOR && _liqTotalFee >= 0,
-            "liqTotalFee out of range"
+            _liqFeeProtocol + _liqFeeSender <= SCALING_FACTOR,
+            "liq fees out of range"
         );
-        require(
-            _liqFeeShare <= SCALING_FACTOR &&
-                _liqFeeShare >= 0 &&
-                _liqFeeShare <= _liqTotalFee,
-            "liqFeeShare out of range"
-        );
-        liquidationFee = _liqTotalFee;
-        liquidatorFeeShare = _liqFeeShare;
+        liqFeeProtocol = _liqFeeProtocol;
+        liqFeeSender = _liqFeeSender;
 
-        // Interest rates
-        require(
-            _interestRate <= SCALING_FACTOR && _interestRate >= 0,
-            "interestRate out of range"
-        );
+        // Interest rates - capped at 100% APR
+        require(_interestRate <= SCALING_FACTOR, "interestRate out of range");
         interestRate = _interestRate;
     }
 
@@ -463,7 +447,7 @@ contract Controller is Ownable {
             "liq threshold must be > scaling factor"
         );
         borrowThreshold = _borrowThreshold;
-        liquidationThreshold = _liqThreshold;
+        liqThreshold = _liqThreshold;
     }
 
     function setTokenAddresses(
