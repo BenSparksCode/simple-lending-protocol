@@ -85,6 +85,7 @@ contract Controller is Ownable {
     // CONSTRUCTOR
     // ---------------------------------------------------------------------
 
+    // TODO fees and rates removed and only set in func with requires for safety
     constructor(
         address _usdzAddress,
         address _usdcAddress,
@@ -114,6 +115,8 @@ contract Controller is Ownable {
 
         // set SECONDS_IN_YEAR for interest calculations
         SECONDS_IN_YEAR = ABDKMath64x64.fromUInt(31556952);
+
+        // TODO infinite approve Sushi pool for token swapping
     }
 
     // ---------------------------------------------------------------------
@@ -252,12 +255,22 @@ contract Controller is Ownable {
             "account not below liq threshold"
         );
 
-        liquidationFees[address(this)] += ((pos.collateral * liqFeeProtocol) /
+        uint256 protocolShare = ((pos.collateral * liqFeeProtocol) /
+            SCALING_FACTOR);
+        uint256 liquidatorShare = ((pos.collateral * liqFeeProtocol) /
             SCALING_FACTOR);
 
+        require(
+            protocolShare + liquidatorShare <= pos.collateral,
+            "liq fees incorrectly set"
+        );
+
+        // taking protocol fees in xSUSHI
+        liquidationFees[address(this)] += protocolShare;
+        // paying liquidator fees in xSUSHI
+        liquidationFees[msg.sender] += liquidatorShare;
+
         // TODO
-        // take protocol fee in xSUSHI
-        // account msg.sender liquidator fee in xSUSHI
         // sell remaining xSUSHI collateral for USDC
 
         emit Liquidation(_account, msg.sender, 0, 0, 0);
