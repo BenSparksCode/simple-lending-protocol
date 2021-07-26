@@ -79,22 +79,22 @@ describe("Liquidation tests", function () {
             constants.CONTRACTS.TOKENS.XSUSHI
         )
     })
-    it("Liquidate works under standard liquidation conditions", async () => { });
-    it("Owner can liquidate a borrower's position", async () => { });
-    it("Random user can liquidate a borrower's position", async () => { });
-    it("Borrower can liquidate their own position", async () => { });
-    it("Cannot liquidate if target address has no position", async () => { });
-    it("Cannot liquidate if position is above borrow ratio", async () => { });
-    it("Cannot liquidate if position is between borrow and liquidation ratios", async () => { });
-    it("Cannot liquidate if position is exactly at liquidation ratio", async () => { });
-    it("Liquidation charges fee correctly", async () => { });
-    it("Liquidation accounts for shortfall correctly", async () => { });
-    it("Liquidation rewards liquidator correctly", async () => { });
-    it("Liquidation fee is transferred to the protocol", async () => { });
-    it("Liquidate works with 10 xSUSHI collateral", async () => { });
-    it("Liquidate works with 1000 xSUSHI collateral", async () => { });
-    it("Liquidate works with 345 801 xSUSHI collateral", async () => { });
-    it("After liquidated, borrower's debt, interest, and collateral are zero", async () => { });
-    it("After liquidated, borrower can withdraw any leftovers in USDC", async () => { });
-    it("Liquidation event emits correctly", async () => { });
+    // it("Liquidate works under standard liquidation conditions", async () => { });
+    // it("Owner can liquidate a borrower's position", async () => { });
+    // it("Random user can liquidate a borrower's position", async () => { });
+    // it("Borrower can liquidate their own position", async () => { });
+    // it("Cannot liquidate if target address has no position", async () => { });
+    // it("Cannot liquidate if position is above borrow ratio", async () => { });
+    // it("Cannot liquidate if position is between borrow and liquidation ratios", async () => { });
+    // it("Cannot liquidate if position is exactly at liquidation ratio", async () => { });
+    // it("Liquidation charges fee correctly", async () => { });
+    // it("Liquidation accounts for shortfall correctly", async () => { });
+    // it("Liquidation rewards liquidator correctly", async () => { });
+    // it("Liquidation fee is transferred to the protocol", async () => { });
+    // it("Liquidate works with 10 xSUSHI collateral", async () => { });
+    // it("Liquidate works with 1000 xSUSHI collateral", async () => { });
+    // it("Liquidate works with 345 801 xSUSHI collateral", async () => { });
+    // it("After liquidated, borrower's debt, interest, and collateral are zero", async () => { });
+    // it("After liquidated, borrower can withdraw any leftovers in USDC", async () => { });
+    // it("Liquidation event emits correctly", async () => { });
 });

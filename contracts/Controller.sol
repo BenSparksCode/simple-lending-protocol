@@ -30,8 +30,12 @@ contract Controller is Ownable {
     }
 
     mapping(address => Position) private positions;
+    // to store protocol and user liquidation fees (in xSUSHI)
+    mapping(address => uint256) private liquidationFees;
 
-    uint256 public protocolShortfall;
+    // protocol debt and interest revenue in USDZ
+    uint256 public protocolDebt;
+    uint256 public protocolIntRev;
 
     address public usdcAddress;
     address public usdzAddress;
@@ -235,12 +239,10 @@ contract Controller is Ownable {
     // Liquidates account if collateral ratio below safety threshold
     function liquidate(address _account) public {
         // TODO - finish
-        require(
-            positions[_account].collateral > 0,
-            "account has no collateral"
-        );
-
         Position storage pos = positions[_account];
+
+        require(pos.collateral > 0, "account has no collateral");
+
         uint256 interest_ = calcInterest(_account);
 
         // Check debt + interest puts account below liquidation col ratio
@@ -250,17 +252,26 @@ contract Controller is Ownable {
             "account not below liq threshold"
         );
 
+        _liquidate(_account);
+
         // calc interest
         // calc forward Col Rat
         // if col rat < threshold: liquidate
         // split collateral across accounts
         // market sell some collateral for USDC
-        // account for protocol shortfall
+        // TODO account for protocol shortfall
         emit Liquidation(_account, msg.sender, 0, 0, 0);
     }
 
+    // internal liquidate logic
+    function _liquidate(address _account) internal {
+        // TODO take fee in xSUSHI
+        // TODO sell xSUSHI collateral for USDC
+
+    }
+
     // ---------------------------------------------------------------------
-    // SWAPPER FUNCTIONS
+    // SWAPPER AND CLAIM FUNCTIONS
     // ---------------------------------------------------------------------
 
     // Deposit USDC to mint USDZ 1:1
@@ -284,6 +295,11 @@ contract Controller is Ownable {
         require(usdcBalance >= _usdzAmount, "USDC reserve too low");
         IUSDZ(usdzAddress).burn(msg.sender, _usdzAmount);
         IERC20(usdcAddress).transfer(msg.sender, _usdzAmount);
+    }
+
+    // TODO options to claim in xSUSHI / USDC / USDZ ?
+    function claimFees(uint256 _amount) public {
+        // TODO withdraw liquidation / protocol fees
     }
 
     // ---------------------------------------------------------------------
