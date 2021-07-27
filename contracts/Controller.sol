@@ -249,7 +249,6 @@ contract Controller is Ownable {
 
     // Liquidates account if collateral ratio below safety threshold
     function liquidate(address _account, uint256 _maxDiscount) public {
-        // TODO - finish
         Position storage pos = positions[_account];
 
         require(pos.collateral > 0, "account has no collateral");
@@ -263,9 +262,10 @@ contract Controller is Ownable {
             "account not below liq threshold"
         );
 
+        // calc fees to protocol and liquidator
         uint256 protocolShare = ((pos.collateral * liqFeeProtocol) /
             SCALING_FACTOR);
-        uint256 liquidatorShare = ((pos.collateral * liqFeeProtocol) /
+        uint256 liquidatorShare = ((pos.collateral * liqFeeSender) /
             SCALING_FACTOR);
 
         require(
