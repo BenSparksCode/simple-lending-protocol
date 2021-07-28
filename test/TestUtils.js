@@ -48,6 +48,15 @@ const depositAndBorrow = async (signer, collateral, debt, xSushiInstance, Contro
     await ControllerInstance.connect(signer).borrow(debt)
 }
 
+const createLiquidatablePosition = async (signer, collateral, debt, xSushiInstance, ControllerInstance) => {
+    await xSushiInstance.connect(signer).approve(
+        ControllerInstance.address,
+        collateral
+    )
+    await ControllerInstance.connect(signer).deposit(collateral)
+    await ControllerInstance.connect(signer).borrow(debt)
+}
+
 // returns current xSUSHI price in USDC from SushiSwap
 const xSUSHIPrice = async (xsushiAmount) => {
     let res = await SushiRouter.getAmountsOut(
@@ -118,4 +127,5 @@ module.exports = {
     calcInterest: calcInterest,
     calcWithdrawable: calcWithdrawable,
     burnTokenBalance: burnTokenBalance,
+    createLiquidatablePosition: createLiquidatablePosition
 }

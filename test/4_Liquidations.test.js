@@ -15,7 +15,8 @@ const {
     calcBorrowedGivenRatio,
     calcInterest,
     calcWithdrawable,
-    burnTokenBalance
+    burnTokenBalance,
+    createLiquidatablePosition
 } = require("./TestUtils")
 
 const ERC20_ABI = require("../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json")
@@ -60,11 +61,11 @@ describe("Liquidation tests", function () {
             constants.CONTRACTS.TOKENS.XSUSHI,
             constants.CONTRACTS.SUSHI.ROUTER,
             constants.PROTOCOL_PARAMS.CONTROLLER.xSushiToUsdcPath,
-            constants.PROTOCOL_PARAMS.CONTROLLER.liqTotalFee,
-            constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeShare,
+            constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeProtocol,
+            constants.PROTOCOL_PARAMS.CONTROLLER.liqFeeSender,
             constants.PROTOCOL_PARAMS.CONTROLLER.interestRate,
             constants.PROTOCOL_PARAMS.CONTROLLER.borrowThreshold,
-            constants.PROTOCOL_PARAMS.CONTROLLER.liquidationThreshold,
+            constants.PROTOCOL_PARAMS.CONTROLLER.liqThreshold,
         )
 
         USDZContract = await ethers.getContractFactory("USDZ")
@@ -79,7 +80,9 @@ describe("Liquidation tests", function () {
             constants.CONTRACTS.TOKENS.XSUSHI
         )
     })
-    // it("Liquidate works under standard liquidation conditions", async () => { });
+    it("Liquidate works under standard liquidation conditions", async () => {
+        await createLiquidatablePosition()
+    });
     // it("Owner can liquidate a borrower's position", async () => { });
     // it("Random user can liquidate a borrower's position", async () => { });
     // it("Borrower can liquidate their own position", async () => { });
