@@ -387,6 +387,7 @@ contract Controller is Ownable {
     }
 
     // Calculates current collateral ratio of an account.
+    // NOTE: EXCLUDES INTEREST
     function getCurrentCollateralRatio(address _account)
         public
         view

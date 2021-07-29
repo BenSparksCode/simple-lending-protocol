@@ -48,13 +48,25 @@ const depositAndBorrow = async (signer, collateral, debt, xSushiInstance, Contro
     await ControllerInstance.connect(signer).borrow(debt)
 }
 
-const createLiquidatablePosition = async (signer, collateral, debt, xSushiInstance, ControllerInstance) => {
+const createLiquidatablePosition = async (signer, xSushiNum, xSushiInstance, ControllerInstance) => {
+    let collateral,maxBorrow, interest, colRat;
+    collateral = ethers.utils.parseUnits(xSushiNum+"", "ether")
     await xSushiInstance.connect(signer).approve(
         ControllerInstance.address,
         collateral
     )
     await ControllerInstance.connect(signer).deposit(collateral)
-    await ControllerInstance.connect(signer).borrow(debt)
+    maxBorrow = await calcBorrowedGivenRatio(xSushiNum, constants.PROTOCOL_PARAMS.CONTROLLER.borrowThreshold)
+    console.log("borrowed:",maxBorrow,maxBorrow.toString());
+    await ControllerInstance.connect(signer).borrow(maxBorrow)
+
+    // wait time to build interest to take col rat from 200% to 150%
+    await fastForward(5*31556952) //1 yr = 31556952
+
+    interest = await ControllerInstance.calcInterest(signer.getAddress())
+    console.log("interest:",interest.toString());
+    colRat = await ControllerInstance.getForwardCollateralRatio(signer.getAddress(), interest.add(maxBorrow))
+    console.log("col rat:",colRat.toString());
 }
 
 // returns current xSUSHI price in USDC from SushiSwap

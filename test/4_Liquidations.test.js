@@ -80,8 +80,8 @@ describe("Liquidation tests", function () {
             constants.CONTRACTS.TOKENS.XSUSHI
         )
     })
-    it("Liquidate works under standard liquidation conditions", async () => {
-        await createLiquidatablePosition()
+    it.only("Liquidate works under standard liquidation conditions", async () => {
+        await createLiquidatablePosition(whale, 10, xSushiInstance, ControllerInstance)
     });
     // it("Owner can liquidate a borrower's position", async () => { });
     // it("Random user can liquidate a borrower's position", async () => { });
