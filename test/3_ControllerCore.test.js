@@ -188,7 +188,7 @@ describe("Controller Core tests", function () {
             expect(debt).to.equal(constants.TEST_PARAMS.borrowedOne)
             expect(lastInterest).to.be.closeTo(BigNumber.from(time), constants.TEST_PARAMS.timeTolerance);
         });
-        it.only("Can borrow exactly to threshold based on collateral", async () => {
+        it("Can borrow exactly to threshold based on collateral", async () => {
             let collateral, debt, interest, lastInterest, maxBorrowable, time
             [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
 
