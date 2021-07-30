@@ -100,4 +100,6 @@ describe("Liquidation tests", function () {
     // it("After liquidated, borrower's debt, interest, and collateral are zero", async () => { });
     // it("After liquidated, borrower can withdraw any leftovers in USDC", async () => { });
     // it("Liquidation event emits correctly", async () => { });
+
+    // test isLiquidatable
 });
