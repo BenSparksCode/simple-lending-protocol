@@ -281,7 +281,7 @@ contract Controller is Ownable {
 
         // TODO refactor price query to separate function - use in _getCollateralRatio
         uint256 collateralValInUSDC = IUniswapV2Router02(sushiRouterAddress)
-        .getAmountsOut(pos.collateral, xSushiToUsdcPath)[2];
+            .getAmountsOut(pos.collateral, xSushiToUsdcPath)[2];
 
         // sell remaining xSUSHI collateral for USDC
         IUniswapV2Router02 router = IUniswapV2Router02(sushiRouterAddress);
@@ -371,6 +371,23 @@ contract Controller is Ownable {
         returns (uint256)
     {
         return liquidationFees[_account];
+    }
+
+    // Returns account's current col rat incl. index
+    // Returns true if account is liquidatable
+    function isLiquidatable(address _account)
+        public
+        view
+        returns (uint256, bool)
+    {
+        uint256 colRat;
+        uint256 debt;
+        uint256 interest;
+
+        (, debt, interest, ) = getPosition(_account);
+        colRat = getForwardCollateralRatio(_account, debt + interest);
+
+        return (colRat, colRat < liqThreshold);
     }
 
     // ---------------------------------------------------------------------
@@ -510,7 +527,7 @@ contract Controller is Ownable {
         address _usdz,
         address _usdc,
         address _xsushi
-    ) external onlyOwner() {
+    ) external onlyOwner {
         require(
             _usdz != address(0) && _usdc != address(0) && _xsushi != address(0),
             "zero address not allowed"
@@ -521,7 +538,7 @@ contract Controller is Ownable {
     }
 
     // Sets any SushiSwap protocol contract addresses
-    function setSushiAddresses(address _sushiRouter) external onlyOwner() {
+    function setSushiAddresses(address _sushiRouter) external onlyOwner {
         require(_sushiRouter != address(0), "zero address not allowed");
         sushiRouterAddress = _sushiRouter;
     }
