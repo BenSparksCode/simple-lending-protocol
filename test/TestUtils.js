@@ -44,7 +44,6 @@ const get3AssetBalance = async (address, xSushiInstance, USDCInstance, USDZInsta
     xsushiBal = await xSushiInstance.balanceOf(address);
     usdcBal = await USDCInstance.balanceOf(address);
     usdzBal = await USDZInstance.balanceOf(address);
-
     return [xsushiBal, usdcBal, usdzBal]
 }
 
@@ -79,11 +78,6 @@ const createLiquidatablePosition = async (signer, xSushiNum, xSushiInstance, Con
     await ControllerInstance.connect(signer).borrow(maxBorrow)
     // wait time to build interest to take col rat from 200% to 149.99%
     await fastForward(9.59*31556952) // = 9.59 years in seconds
-    // Uncomment to check col rat:
-    interest = await ControllerInstance.calcInterest(signer.getAddress())
-    colRat = await ControllerInstance.getForwardCollateralRatio(signer.getAddress(), interest.add(maxBorrow))
-    console.log(colRat.toString());
-    return colRat
 }
 
 // returns current xSUSHI price in USDC from SushiSwap
