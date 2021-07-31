@@ -254,11 +254,14 @@ contract Controller is Ownable {
         require(pos.collateral > 0, "account has no collateral");
 
         uint256 interest_ = calcInterest(_account);
+        uint256 collateralRatio = getForwardCollateralRatio(
+            _account,
+            pos.debt + interest_
+        );
 
         // Check debt + interest puts account below liquidation col ratio
         require(
-            getForwardCollateralRatio(_account, pos.debt + interest_) <
-                liqThreshold,
+            collateralRatio < liqThreshold,
             "account not below liq threshold"
         );
 
@@ -290,13 +293,13 @@ contract Controller is Ownable {
             block.timestamp
         );
 
+        emit Liquidation(_account, msg.sender, pos.collateral, collateralRatio, pos.debt);
+
         pos.collateral = 0;
         pos.debt = 0;
 
         // TODO account for shortfall
-        // Shortfall (in xSUSHI) = [100% - colRat (if<100%) ] * collateral
-
-        emit Liquidation(_account, msg.sender, 0, 0, 0);
+        // Shortfall (in xSUSHI) = [100% - colRat (if<100%) ] * collateral        
     }
 
     // ---------------------------------------------------------------------
