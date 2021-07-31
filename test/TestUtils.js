@@ -48,6 +48,16 @@ const get3AssetBalance = async (address, xSushiInstance, USDCInstance, USDZInsta
     return [xsushiBal, usdcBal, usdzBal]
 }
 
+const log3AssetBalance = async (name, address, xSushiInstance, USDCInstance, USDZInstance) => {
+    const [xsushiBal, usdcBal, usdzBal] = await get3AssetBalance(address, xSushiInstance, USDCInstance, USDZInstance);
+    console.log("--------------------------");
+    console.log("Name: \t\t\t", name, '(' + address.substring(0, 6) + "...)")
+    console.log("xSUSHI: \t\t", parseFloat(xsushiBal.mul(100).div(ethers.utils.parseUnits("1", "ether")).toString()) / 100 + '', "xSUSHI");
+    console.log("USDC: \t\t\t", parseFloat(usdcBal.div(10000).toString()) / 100 + '', "USDC");
+    console.log("USDZ: \t\t\t", parseFloat(usdzBal.div(10000).toString()) / 100 + '', "USDZ");
+    console.log("--------------------------");
+}
+
 const depositAndBorrow = async (signer, collateral, debt, xSushiInstance, ControllerInstance) => {
     await xSushiInstance.connect(signer).approve(
         ControllerInstance.address,
@@ -138,6 +148,7 @@ const burnTokenBalance = async (signer, tokenContract) => {
 module.exports = {
     logPosition: logPosition,
     get3AssetBalance: get3AssetBalance,
+    log3AssetBalance: log3AssetBalance,
     currentTime: currentTime,
     fastForward: fastForward,
     depositAndBorrow: depositAndBorrow,
