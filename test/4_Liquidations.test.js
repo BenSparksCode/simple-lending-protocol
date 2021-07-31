@@ -10,6 +10,10 @@ const { ethers } = require("hardhat");
 
 const { constants } = require("./TestConstants")
 const {
+    logPosition,
+    get3AssetBalance,
+    log3AssetBalance,
+    xSUSHIPrice,
     currentTime,
     fastForward,
     calcBorrowedGivenRatio,
@@ -81,7 +85,39 @@ describe("Liquidation tests", function () {
         )
     })
     it.only("Liquidate works under standard liquidation conditions", async () => {
-        await createLiquidatablePosition(whale, 10, xSushiInstance, ControllerInstance)
+        let xsushiBal, usdcBal, usdzBal, collateral, debt, interest, lastInterest, borrowed, estInterest;
+        await createLiquidatablePosition(whale, 10, xSushiInstance, ControllerInstance);
+        [xsushiBal, usdcBal, usdzBal] = await get3AssetBalance(
+            ControllerInstance.address,
+            xSushiInstance,
+            USDCInstance,
+            USDZInstance
+        );
+        [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+        borrowed = await calcBorrowedGivenRatio(10, constants.PROTOCOL_PARAMS.CONTROLLER.borrowThreshold)
+        estInterest = BigNumber.from(await calcInterest(borrowed, 0, 9.59 * 31556952))
+        expect(xsushiBal).to.equal(constants.TEST_PARAMS.collateralOne)
+        expect(usdcBal).to.equal(0)
+        expect(usdzBal).to.equal(0)
+        expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
+        expect(debt).to.be.closeTo(borrowed, 1000000) // within $1
+        expect(interest).to.be.closeTo(estInterest, 100000) // within 1 cent
+
+        await ControllerInstance.connect(alice).liquidate(whaleAddress);
+
+        [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+        [xsushiBal, usdcBal, usdzBal] = await get3AssetBalance(
+            ControllerInstance.address,
+            xSushiInstance,
+            USDCInstance,
+            USDZInstance
+        );
+        expect(xsushiBal).to.equal(constants.TEST_PARAMS.collateralOne.div(10))
+        expect(usdcBal).to.be.closeTo(await xSUSHIPrice(9), 10000) // within 1 USDC cent
+        expect(usdzBal).to.equal(0)
+        expect(collateral).to.equal(0)
+        expect(debt).to.equal(0)
+        expect(interest).to.equal(0)
     });
     // it("Owner can liquidate a borrower's position", async () => { });
     // it("Random user can liquidate a borrower's position", async () => { });
@@ -98,8 +134,9 @@ describe("Liquidation tests", function () {
     // it("Liquidate works with 1000 xSUSHI collateral", async () => { });
     // it("Liquidate works with 345 801 xSUSHI collateral", async () => { });
     // it("After liquidated, borrower's debt, interest, and collateral are zero", async () => { });
-    // it("After liquidated, borrower can withdraw any leftovers in USDC", async () => { });
     // it("Liquidation event emits correctly", async () => { });
 
     // test isLiquidatable
+    // test liquidator receives fees
+    // test protocol receives fees
 });
