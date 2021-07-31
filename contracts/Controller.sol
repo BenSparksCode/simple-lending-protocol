@@ -248,7 +248,7 @@ contract Controller is Ownable {
     }
 
     // Liquidates account if collateral ratio below safety threshold
-    function liquidate(address _account, uint256 _maxDiscount) public {
+    function liquidate(address _account) public {
         Position storage pos = positions[_account];
 
         require(pos.collateral > 0, "account has no collateral");
@@ -272,25 +272,19 @@ contract Controller is Ownable {
             protocolShare + liquidatorShare <= pos.collateral,
             "liq fees incorrectly set"
         );
-        require(_maxDiscount <= SCALING_FACTOR, "max discount max is 100%");
 
         // taking protocol fees in xSUSHI
         liquidationFees[address(this)] += protocolShare;
         // paying liquidator fees in xSUSHI
         liquidationFees[msg.sender] += liquidatorShare;
 
-        // TODO refactor price query to separate function - use in _getCollateralRatio
-        uint256 collateralValInUSDC = IUniswapV2Router02(sushiRouterAddress)
-            .getAmountsOut(pos.collateral, xSushiToUsdcPath)[2];
+        uint256 amountIn = pos.collateral - (protocolShare + liquidatorShare);
 
         // sell remaining xSUSHI collateral for USDC
-        IUniswapV2Router02 router = IUniswapV2Router02(sushiRouterAddress);
-
         // TODO use the returned amounts to calc shortfall etc
-        router.swapExactTokensForTokens(
-            pos.collateral - (protocolShare + liquidatorShare),
-            (collateralValInUSDC * (SCALING_FACTOR - _maxDiscount)) /
-                SCALING_FACTOR,
+        IUniswapV2Router02(sushiRouterAddress).swapExactTokensForTokens(
+            amountIn,
+            0,
             xSushiToUsdcPath,
             address(this),
             block.timestamp
@@ -300,6 +294,7 @@ contract Controller is Ownable {
         pos.debt = 0;
 
         // TODO account for shortfall
+        // Shortfall (in xSUSHI) = [100% - colRat (if<100%) ] * collateral
 
         emit Liquidation(_account, msg.sender, 0, 0, 0);
     }
