@@ -37,8 +37,8 @@ contract Controller is Ownable {
     mapping(address => uint256) private liquidationFees;
 
     // protocol debt and interest revenue
-    uint256 public protocolDebt; // in USDZ
-    uint256 public protocolIntRev; // in xSUSHI
+    uint256 public protocolDebt; // in xSUSHI
+    uint256 public protocolIntRev; // in USDZ
 
     address public usdcAddress;
     address public usdzAddress;
@@ -268,9 +268,10 @@ contract Controller is Ownable {
     }
 
     // Liquidates account if collateral ratio below safety threshold
+    // Accounts for protocol shortfal as debt (in xSUSHI)
+    // No protocol interest revenue taken on liquidations,
+    // as a protocol liquidation fee is taken instead
     function liquidate(address _account) public {
-        //         protocolDebt
-        //          protocolIntRev
         Position storage pos = positions[_account];
 
         require(pos.collateral > 0, "account has no collateral");
