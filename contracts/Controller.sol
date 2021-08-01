@@ -81,7 +81,8 @@ contract Controller is Ownable {
         address indexed liquidator,
         uint256 collateralLiquidated,
         uint256 lastCollateralRatio,
-        uint256 lastDebtOutstanding
+        uint256 lastDebtOutstanding,
+        uint256 protocolDebtCreated // if liquidating at < 100% col rat -> protocol takes on debt
     );
 
     // ---------------------------------------------------------------------
@@ -245,7 +246,7 @@ contract Controller is Ownable {
                 "repay transfer failed"
             );
             protocolIntRev += _amount;
-            pos.debt -= (_amount-interestDue);
+            pos.debt -= (_amount - interestDue);
         } else {
             // repay partial interest, no debt repayment
             require(
@@ -268,6 +269,8 @@ contract Controller is Ownable {
 
     // Liquidates account if collateral ratio below safety threshold
     function liquidate(address _account) public {
+        //         protocolDebt
+        //          protocolIntRev
         Position storage pos = positions[_account];
 
         require(pos.collateral > 0, "account has no collateral");
@@ -312,19 +315,28 @@ contract Controller is Ownable {
             block.timestamp
         );
 
+        // Accounting for protocol shortfall by taking on debt
+        uint256 protocolDebtCreated;
+        if (collateralRatio < SCALING_FACTOR) {
+            // if liquidating at col ratio < 100%
+            protocolDebtCreated =
+                (SCALING_FACTOR - collateralRatio) *
+                pos.collateral;
+        }
+
+        protocolDebt += protocolDebtCreated;
+
         emit Liquidation(
             _account,
             msg.sender,
             pos.collateral,
             collateralRatio,
-            pos.debt
+            pos.debt,
+            protocolDebtCreated
         );
 
         pos.collateral = 0;
         pos.debt = 0;
-
-        // TODO account for shortfall
-        // Shortfall (in xSUSHI) = [100% - colRat (if<100%) ] * collateral
     }
 
     // ---------------------------------------------------------------------

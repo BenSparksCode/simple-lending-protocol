@@ -45,7 +45,7 @@ let USDCInstance = new ethers.Contract(
     ethers.provider
 )
 
-describe("Liquidation tests", function () {
+describe.only("Liquidation tests", function () {
     beforeEach(async () => {
         [owner, alice] = await ethers.getSigners();
         ownerAddress = await owner.getAddress()
