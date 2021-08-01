@@ -12,14 +12,11 @@ import "./interfaces/IUSDZ.sol";
 import "hardhat/console.sol";
 
 // TODO features
-// - Liquidate function
-// - add protocol treasury accounting (repay/liquidate)
-// - dealing with protocol shortfall
+// - Admin functions for withdrawing protocol USDZ/xSUSHI
 
 // TODO fixes
 // - add nonReentrant
 // - remove fees/rates in contructor - setter only for safety
-// - consider refactoring price query to sep function
 // - check best practices for ABDKMath64x64
 // - standardize revert msgs
 // - use smaller uints for fees and rates
