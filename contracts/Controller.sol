@@ -36,9 +36,9 @@ contract Controller is Ownable {
     // to store protocol and user liquidation fees (in xSUSHI)
     mapping(address => uint256) private liquidationFees;
 
-    // protocol debt and interest revenue in USDZ
-    uint256 public protocolDebt;
-    uint256 public protocolIntRev;
+    // protocol debt and interest revenue
+    uint256 public protocolDebt; // in USDZ
+    uint256 public protocolIntRev; // in xSUSHI
 
     address public usdcAddress;
     address public usdzAddress;
@@ -276,6 +276,7 @@ contract Controller is Ownable {
         require(pos.collateral > 0, "account has no collateral");
 
         uint256 interest_ = calcInterest(_account);
+        uint256 totalCollateral = pos.collateral; //needed for reporting in event
         uint256 collateralRatio = getForwardCollateralRatio(
             _account,
             pos.debt + interest_
@@ -306,7 +307,6 @@ contract Controller is Ownable {
         uint256 amountIn = pos.collateral - (protocolShare + liquidatorShare);
 
         // sell remaining xSUSHI collateral for USDC
-        // TODO use the returned amounts to calc shortfall etc
         IUniswapV2Router02(sushiRouterAddress).swapExactTokensForTokens(
             amountIn,
             0,
@@ -316,11 +316,16 @@ contract Controller is Ownable {
         );
 
         // Accounting for protocol shortfall by taking on debt
+        pos.collateral = totalCollateral - (protocolShare + liquidatorShare);
+        uint256 colRatioAfterFees = getForwardCollateralRatio(
+            _account,
+            pos.debt + interest_
+        );
         uint256 protocolDebtCreated;
-        if (collateralRatio < SCALING_FACTOR) {
-            // if liquidating at col ratio < 100%
+        if (colRatioAfterFees < SCALING_FACTOR) {
+            // if liquidating at col ratio < 100% + fees
             protocolDebtCreated =
-                (SCALING_FACTOR - collateralRatio) *
+                (SCALING_FACTOR - colRatioAfterFees) *
                 pos.collateral;
         }
 
@@ -329,7 +334,7 @@ contract Controller is Ownable {
         emit Liquidation(
             _account,
             msg.sender,
-            pos.collateral,
+            totalCollateral,
             collateralRatio,
             pos.debt,
             protocolDebtCreated
