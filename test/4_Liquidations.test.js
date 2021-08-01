@@ -84,7 +84,7 @@ describe("Liquidation tests", function () {
             constants.CONTRACTS.TOKENS.XSUSHI
         )
     })
-    it.only("Liquidate works under standard liquidation conditions", async () => {
+    it("Liquidate works under standard liquidation conditions", async () => {
         let xsushiBal, usdcBal, usdzBal, collateral, debt, interest, lastInterest, borrowed, estInterest;
         await createLiquidatablePosition(whale, 10, xSushiInstance, ControllerInstance);
         [xsushiBal, usdcBal, usdzBal] = await get3AssetBalance(
@@ -119,7 +119,23 @@ describe("Liquidation tests", function () {
         expect(debt).to.equal(0)
         expect(interest).to.equal(0)
     });
-    // it("Owner can liquidate a borrower's position", async () => { });
+    it("Owner can liquidate a borrower's position", async () => {
+        let collateral, debt, interest, lastInterest, borrowed, estInterest;
+        await createLiquidatablePosition(whale, 10, xSushiInstance, ControllerInstance);
+        [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+        borrowed = await calcBorrowedGivenRatio(10, constants.PROTOCOL_PARAMS.CONTROLLER.borrowThreshold)
+        estInterest = BigNumber.from(await calcInterest(borrowed, 0, 9.59 * 31556952))
+        expect(collateral).to.equal(constants.TEST_PARAMS.collateralOne)
+        expect(debt).to.be.closeTo(borrowed, 1000000) // within $1
+        expect(interest).to.be.closeTo(estInterest, 100000) // within 1 cent
+
+        await ControllerInstance.connect(owner).liquidate(whaleAddress);
+
+        [collateral, debt, interest, lastInterest] = await ControllerInstance.getPosition(whaleAddress);
+        expect(collateral).to.equal(0)
+        expect(debt).to.equal(0)
+        expect(interest).to.equal(0)
+    });
     // it("Random user can liquidate a borrower's position", async () => { });
     // it("Borrower can liquidate their own position", async () => { });
     // it("Cannot liquidate if target address has no position", async () => { });
