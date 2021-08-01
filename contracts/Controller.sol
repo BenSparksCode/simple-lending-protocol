@@ -213,15 +213,29 @@ contract Controller is Ownable {
         emit Borrow(msg.sender, _amount, pos.debt, pos.collateral);
     }
 
-    // User repays any debt in USDZ
+    // User repays any interest, then debt in USDZ
+    // Interest revenue is acounted for in protocolIntRev
     function repay(uint256 _amount) public {
         require(_amount > 0, "can't repay 0");
 
         Position storage pos = positions[msg.sender];
-        pos.debt += calcInterest(msg.sender);
-        pos.lastInterest = block.timestamp;
+        uint256 interestDue = calcInterest(msg.sender);
 
-        if (pos.debt > _amount) {
+        // account for protocol interest revenue
+        if (_amount >= interestDue + pos.debt) {
+            // repays all interest and debt
+            require(
+                IUSDZ(usdzAddress).transferFrom(
+                    msg.sender,
+                    address(this),
+                    pos.debt + interestDue
+                ),
+                "repay transfer failed"
+            );
+            protocolIntRev += interestDue;
+            pos.debt = 0;
+        } else if (_amount >= interestDue) {
+            // repays all interest, starts repaying debt
             require(
                 IUSDZ(usdzAddress).transferFrom(
                     msg.sender,
@@ -230,19 +244,24 @@ contract Controller is Ownable {
                 ),
                 "repay transfer failed"
             );
-            pos.debt -= _amount;
+            protocolIntRev += _amount;
+            pos.debt -= (_amount-interestDue);
         } else {
-            // repay all debt, as _amount >= debt
+            // repay partial interest, no debt repayment
             require(
                 IUSDZ(usdzAddress).transferFrom(
                     msg.sender,
                     address(this),
-                    pos.debt
+                    _amount
                 ),
                 "repay transfer failed"
             );
-            pos.debt = 0;
+            protocolIntRev += _amount;
+            pos.debt += (interestDue - _amount);
         }
+
+        // restart interest compounding from here
+        pos.lastInterest = block.timestamp;
 
         emit Repay(msg.sender, _amount, pos.debt, pos.collateral);
     }
@@ -293,13 +312,19 @@ contract Controller is Ownable {
             block.timestamp
         );
 
-        emit Liquidation(_account, msg.sender, pos.collateral, collateralRatio, pos.debt);
+        emit Liquidation(
+            _account,
+            msg.sender,
+            pos.collateral,
+            collateralRatio,
+            pos.debt
+        );
 
         pos.collateral = 0;
         pos.debt = 0;
 
         // TODO account for shortfall
-        // Shortfall (in xSUSHI) = [100% - colRat (if<100%) ] * collateral        
+        // Shortfall (in xSUSHI) = [100% - colRat (if<100%) ] * collateral
     }
 
     // ---------------------------------------------------------------------
