@@ -94,7 +94,7 @@ const calcCollateralRatio = async (numXSushi, numUSDZ) => {
     // console.log(xsushiValue.toString());
     return (
         xsushiValue
-            .mul(constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR)
+            .mul(SCALE)
             .div(BigNumber.from(numUSDZ).mul(1000000))
     )
 }
@@ -104,12 +104,12 @@ const calcBorrowedGivenRatio = async (numXSushi, targetColRatio) => {
     // console.log(xsushiValue.toString());
     return (
         xsushiValue
-            .div(targetColRatio / constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR)
+            .div(targetColRatio / SCALE)
     )
 }
 
 const calcInterest = async (debt, startTime, endTime) => {
-    const i = constants.PROTOCOL_PARAMS.CONTROLLER.interestRate / constants.PROTOCOL_PARAMS.CONTROLLER.SCALING_FACTOR
+    const i = constants.PROTOCOL_PARAMS.CONTROLLER.interestRate / SCALE
     const duration = (endTime - toJSNum(startTime)) / constants.TEST_PARAMS.secondsInAYear
     const interest = (toJSNum(debt) * Math.pow(constants.TEST_PARAMS.e, (i * duration))) - toJSNum(debt)
     return Math.floor(interest)

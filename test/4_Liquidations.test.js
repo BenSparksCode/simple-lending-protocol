@@ -45,7 +45,7 @@ let USDCInstance = new ethers.Contract(
     ethers.provider
 )
 
-describe.only("Liquidation tests", function () {
+describe("Liquidation tests", function () {
     beforeEach(async () => {
         [owner, alice] = await ethers.getSigners();
         ownerAddress = await owner.getAddress()
@@ -153,6 +153,4 @@ describe.only("Liquidation tests", function () {
     // it("Liquidation event emits correctly", async () => { });
 
     // test isLiquidatable
-    // test liquidator receives fees
-    // test protocol receives fees
 });
